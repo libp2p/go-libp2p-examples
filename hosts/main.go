@@ -21,6 +21,12 @@ import (
 	context "golang.org/x/net/context"
 )
 
+func init() {
+	// Disable secio for this demo
+	// This makes testing with javascript easier
+	conn.EncryptConnections = false
+}
+
 // create a 'Host' with a random peer to listen on the given address
 func makeDummyHost(listen string) (host.Host, error) {
 	addr, err := ma.NewMultiaddr(listen)
@@ -47,7 +53,7 @@ func makeDummyHost(listen string) (host.Host, error) {
 }
 
 func main() {
-	conn.EncryptConnections = false
+
 	listenF := flag.Int("l", 0, "wait for incoming connections")
 	target := flag.String("d", "", "target peer to dial")
 	flag.Parse()
@@ -60,6 +66,7 @@ func main() {
 	}
 
 	message := []byte("hello libp2p!")
+
 	// Set a stream handler on host A
 	ha.SetStreamHandler("/hello/1.0.0", func(s net.Stream) {
 		defer s.Close()
@@ -68,10 +75,8 @@ func main() {
 	})
 
 	if *target == "" {
-		log.Println("listening on for connections...")
-		for {
-			time.Sleep(time.Hour)
-		}
+		log.Println("listening for connections...")
+		select {} // hang forever
 	}
 
 	a, err := ipfsaddr.ParseString(*target)
