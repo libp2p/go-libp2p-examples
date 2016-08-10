@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"time"
 
 	pstore "github.com/ipfs/go-libp2p-peerstore"
 	host "github.com/ipfs/go-libp2p/p2p/host"
