@@ -97,7 +97,7 @@ func main() {
 	log.Println("opening stream...")
 	// make a new stream from host B to host A
 	// it should be handled on host A by the handler we set
-	s, err := ha.NewStream(context.Background(), "/hello/1.0.0", a.ID())
+	s, err := ha.NewStream(context.Background(), a.ID(), "/hello/1.0.0")
 	if err != nil {
 		log.Fatalln(err)
 	}
