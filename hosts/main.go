@@ -6,12 +6,11 @@ import (
 	"io/ioutil"
 	"log"
 
+	peer "github.com/ipfs/go-libp2p-peer"
 	pstore "github.com/ipfs/go-libp2p-peerstore"
 	host "github.com/libp2p/go-libp2p/p2p/host"
 	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
-	metrics "github.com/libp2p/go-libp2p/p2p/metrics"
 	net "github.com/libp2p/go-libp2p/p2p/net"
-	conn "github.com/libp2p/go-libp2p/p2p/net/conn"
 	swarm "github.com/libp2p/go-libp2p/p2p/net/swarm"
 	testutil "github.com/libp2p/go-libp2p/testutil"
 
@@ -20,29 +19,38 @@ import (
 	context "golang.org/x/net/context"
 )
 
-func init() {
-	// Disable secio for this demo
-	// This makes testing with javascript easier
-	conn.EncryptConnections = false
-}
-
 // create a 'Host' with a random peer to listen on the given address
-func makeDummyHost(listen string) (host.Host, error) {
+func makeDummyHost(listen string, secio bool) (host.Host, error) {
 	addr, err := ma.NewMultiaddr(listen)
 	if err != nil {
 		return nil, err
 	}
 
-	pid, err := testutil.RandPeerID()
-	if err != nil {
-		return nil, err
+	ps := pstore.NewPeerstore()
+	var pid peer.ID
+
+	if secio {
+		ident, err := testutil.RandIdentity()
+		if err != nil {
+			return nil, err
+		}
+
+		ident.PrivateKey()
+		ps.AddPrivKey(ident.ID(), ident.PrivateKey())
+		ps.AddPubKey(ident.ID(), ident.PublicKey())
+		pid = ident.ID()
+	} else {
+		fakepid, err := testutil.RandPeerID()
+		if err != nil {
+			return nil, err
+		}
+		pid = fakepid
 	}
 
-	// bandwidth counter, should be optional in the future
-	bwc := metrics.NewBandwidthCounter()
+	ctx := context.Background()
 
 	// create a new swarm to be used by the service host
-	netw, err := swarm.NewNetwork(context.Background(), []ma.Multiaddr{addr}, pid, pstore.NewPeerstore(), bwc)
+	netw, err := swarm.NewNetwork(ctx, []ma.Multiaddr{addr}, pid, ps, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -52,25 +60,23 @@ func makeDummyHost(listen string) (host.Host, error) {
 }
 
 func main() {
-
 	listenF := flag.Int("l", 0, "wait for incoming connections")
 	target := flag.String("d", "", "target peer to dial")
+	secio := flag.Bool("secio", false, "enable secio")
+
 	flag.Parse()
 
 	listenaddr := fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", *listenF)
 
-	ha, err := makeDummyHost(listenaddr)
+	ha, err := makeDummyHost(listenaddr, *secio)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	message := []byte("hello libp2p!")
-
 	// Set a stream handler on host A
-	ha.SetStreamHandler("/hello/1.0.0", func(s net.Stream) {
+	ha.SetStreamHandler("/echo/1.0.0", func(s net.Stream) {
+		log.Println("Got a new stream!")
 		defer s.Close()
-		log.Println("writing message")
-		s.Write(message)
 	})
 
 	if *target == "" {
@@ -102,11 +108,33 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	log.Println("reading message")
+	_, err = s.Write([]byte("Hello world of peer two peer"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	out, err := ioutil.ReadAll(s)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	log.Println("GOT: ", string(out))
+}
+
+func doEcho(s inet.Stream) {
+	buf := make([]byte, 1024)
+	for {
+		n, err := s.Read(buf)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		log.Printf("read data: %q\n", buf[:n])
+		_, err = s.Write(buf[:n])
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
 }
