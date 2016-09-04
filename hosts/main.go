@@ -5,16 +5,17 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 
 	peer "github.com/ipfs/go-libp2p-peer"
 	pstore "github.com/ipfs/go-libp2p-peerstore"
 	host "github.com/libp2p/go-libp2p/p2p/host"
 	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
+	inet "github.com/libp2p/go-libp2p/p2p/net"
 	net "github.com/libp2p/go-libp2p/p2p/net"
 	swarm "github.com/libp2p/go-libp2p/p2p/net/swarm"
 	testutil "github.com/libp2p/go-libp2p/testutil"
 
-	ipfsaddr "github.com/ipfs/go-ipfs/thirdparty/ipfsaddr"
 	ma "github.com/jbenet/go-multiaddr"
 	context "golang.org/x/net/context"
 )
@@ -84,14 +85,30 @@ func main() {
 		select {} // hang forever
 	}
 
-	a, err := ipfsaddr.ParseString(*target)
+	ipfsaddr, err := ma.NewMultiaddr(*target)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	pid, err := ipfsaddr.ValueForProtocol(ma.P_IPFS)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	peerid, err := peer.IDB58Decode(pid)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	tptaddr := strings.Split(ipfsaddr.String(), "/ipfs/")[0]
+	tptmaddr, err := ma.NewMultiaddr(tptaddr)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	pi := pstore.PeerInfo{
-		ID:    a.ID(),
-		Addrs: []ma.Multiaddr{a.Transport()},
+		ID:    peerid,
+		Addrs: []ma.Multiaddr{tptmaddr},
 	}
 
 	log.Println("connecting to target")
@@ -103,7 +120,7 @@ func main() {
 	log.Println("opening stream...")
 	// make a new stream from host B to host A
 	// it should be handled on host A by the handler we set
-	s, err := ha.NewStream(context.Background(), a.ID(), "/hello/1.0.0")
+	s, err := ha.NewStream(context.Background(), peerid, "/hello/1.0.0")
 	if err != nil {
 		log.Fatalln(err)
 	}
