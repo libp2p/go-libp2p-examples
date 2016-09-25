@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	transport "github.com/ipfs/go-libp2p-transport"
 	ma "github.com/jbenet/go-multiaddr"
 	"github.com/libp2p/go-libp2p/p2p/net/swarm"
+	tcpt "github.com/libp2p/go-tcp-transport"
 )
 
 func fatal(i interface{}) {
@@ -25,7 +25,7 @@ func main() {
 	s := swarm.NewBlankSwarm(context.Background(), "bob", nil, nil)
 
 	// Add a TCP transport to it
-	s.AddTransport(transport.NewTCPTransport())
+	s.AddTransport(tcpt.NewTCPTransport())
 
 	// Add an address to start listening on
 	err = s.AddListenAddr(laddr)
