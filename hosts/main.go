@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -17,7 +18,6 @@ import (
 	testutil "github.com/libp2p/go-libp2p/testutil"
 
 	ma "github.com/jbenet/go-multiaddr"
-	context "golang.org/x/net/context"
 )
 
 // create a 'Host' with a random peer to listen on the given address
