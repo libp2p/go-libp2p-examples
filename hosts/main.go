@@ -8,16 +8,16 @@ import (
 	"log"
 	"strings"
 
-	peer "github.com/ipfs/go-libp2p-peer"
-	pstore "github.com/ipfs/go-libp2p-peerstore"
 	host "github.com/libp2p/go-libp2p/p2p/host"
 	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
 	inet "github.com/libp2p/go-libp2p/p2p/net"
 	net "github.com/libp2p/go-libp2p/p2p/net"
 	swarm "github.com/libp2p/go-libp2p/p2p/net/swarm"
-	testutil "github.com/libp2p/go-libp2p/testutil"
 
+	peer "github.com/ipfs/go-libp2p-peer"
+	pstore "github.com/ipfs/go-libp2p-peerstore"
 	ma "github.com/jbenet/go-multiaddr"
+	testutil "github.com/libp2p/go-testutil"
 )
 
 // create a 'Host' with a random peer to listen on the given address
