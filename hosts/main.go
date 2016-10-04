@@ -8,10 +8,10 @@ import (
 	"log"
 	"strings"
 
+	inet "github.com/libp2p/go-libp2p-net"
+	net "github.com/libp2p/go-libp2p-net"
 	host "github.com/libp2p/go-libp2p/p2p/host"
 	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
-	inet "github.com/libp2p/go-libp2p/p2p/net"
-	net "github.com/libp2p/go-libp2p/p2p/net"
 	swarm "github.com/libp2p/go-libp2p/p2p/net/swarm"
 
 	peer "github.com/ipfs/go-libp2p-peer"
