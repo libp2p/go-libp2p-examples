@@ -8,14 +8,14 @@ import (
 	"log"
 	"strings"
 
+	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
+
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
 	net "github.com/libp2p/go-libp2p-net"
-	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
-	swarm "github.com/libp2p/go-libp2p/p2p/net/swarm"
-
 	peer "github.com/libp2p/go-libp2p-peer"
 	pstore "github.com/libp2p/go-libp2p-peerstore"
+	swarm "github.com/libp2p/go-libp2p-swarm"
 	testutil "github.com/libp2p/go-testutil"
 	ma "github.com/multiformats/go-multiaddr"
 )

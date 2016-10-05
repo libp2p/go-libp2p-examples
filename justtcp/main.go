@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/libp2p/go-libp2p/p2p/net/swarm"
+	"github.com/libp2p/go-libp2p-swarm"
 	tcpt "github.com/libp2p/go-tcp-transport"
 	ma "github.com/multiformats/go-multiaddr"
 )
