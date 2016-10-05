@@ -14,10 +14,10 @@ import (
 	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
 	swarm "github.com/libp2p/go-libp2p/p2p/net/swarm"
 
-	peer "github.com/ipfs/go-libp2p-peer"
-	pstore "github.com/ipfs/go-libp2p-peerstore"
-	ma "github.com/jbenet/go-multiaddr"
+	peer "github.com/libp2p/go-libp2p-peer"
+	pstore "github.com/libp2p/go-libp2p-peerstore"
 	testutil "github.com/libp2p/go-testutil"
+	ma "github.com/multiformats/go-multiaddr"
 )
 
 // create a 'Host' with a random peer to listen on the given address
