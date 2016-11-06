@@ -67,7 +67,7 @@ func main() {
 
 	flag.Parse()
 
-	listenaddr := fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", *listenF)
+	listenaddr := fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", *listenF)
 
 	ha, err := makeDummyHost(listenaddr, *secio)
 	if err != nil {
@@ -76,12 +76,13 @@ func main() {
 
 	// Set a stream handler on host A
 	ha.SetStreamHandler("/echo/1.0.0", func(s net.Stream) {
-		log.Println("Got a new stream!")
+		log.Println("got a new stream")
+		doEcho(s)
 		defer s.Close()
 	})
 
 	if *target == "" {
-		log.Println("listening for connections...")
+		log.Println("listening for connections")
 		select {} // hang forever
 	}
 
@@ -117,15 +118,15 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	log.Println("opening stream...")
+	log.Println("opening stream")
 	// make a new stream from host B to host A
 	// it should be handled on host A by the handler we set
-	s, err := ha.NewStream(context.Background(), peerid, "/hello/1.0.0")
+	s, err := ha.NewStream(context.Background(), peerid, "/echo/1.0.0")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	_, err = s.Write([]byte("Hello world of peer two peer"))
+	_, err = s.Write([]byte("Hello, world!"))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -135,23 +136,21 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	log.Println("GOT: ", string(out))
+	log.Printf("read reply: %q\n", out)
 }
 
 func doEcho(s inet.Stream) {
 	buf := make([]byte, 1024)
-	for {
-		n, err := s.Read(buf)
-		if err != nil {
-			log.Println(err)
-			return
-		}
+	n, err := s.Read(buf)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
-		log.Printf("read data: %q\n", buf[:n])
-		_, err = s.Write(buf[:n])
-		if err != nil {
-			log.Println(err)
-			return
-		}
+	log.Printf("read request: %q\n", buf[:n])
+	_, err = s.Write(buf[:n])
+	if err != nil {
+		log.Println(err)
+		return
 	}
 }
