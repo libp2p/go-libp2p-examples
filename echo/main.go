@@ -8,20 +8,22 @@ import (
 	"log"
 	"strings"
 
-	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
-
+	golog "github.com/ipfs/go-log"
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
 	net "github.com/libp2p/go-libp2p-net"
 	peer "github.com/libp2p/go-libp2p-peer"
+	peerstore "github.com/libp2p/go-libp2p-peerstore"
 	pstore "github.com/libp2p/go-libp2p-peerstore"
 	swarm "github.com/libp2p/go-libp2p-swarm"
+	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
 	testutil "github.com/libp2p/go-testutil"
 	ma "github.com/multiformats/go-multiaddr"
+	gologging "github.com/whyrusleeping/go-logging"
 )
 
 // create a 'Host' with a random peer to listen on the given address
-func makeDummyHost(listen string, secio bool) (host.Host, error) {
+func makeBasicHost(listen string, secio bool) (host.Host, error) {
 	addr, err := ma.NewMultiaddr(listen)
 	if err != nil {
 		return nil, err
@@ -61,30 +63,36 @@ func makeDummyHost(listen string, secio bool) (host.Host, error) {
 }
 
 func main() {
+	golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
 	listenF := flag.Int("l", 0, "wait for incoming connections")
 	target := flag.String("d", "", "target peer to dial")
 	secio := flag.Bool("secio", false, "enable secio")
 
 	flag.Parse()
 
+	if *listenF == 0 {
+		log.Fatal("Please provide a port to bind on with -l")
+	}
+
 	listenaddr := fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", *listenF)
 
-	ha, err := makeDummyHost(listenaddr, *secio)
+	ha, err := makeBasicHost(listenaddr, *secio)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Set a stream handler on host A
 	ha.SetStreamHandler("/echo/1.0.0", func(s net.Stream) {
-		log.Println("got a new stream")
-		doEcho(s)
+		log.Println("Got a new stream!")
 		defer s.Close()
+		doEcho(s)
 	})
 
 	if *target == "" {
 		log.Println("listening for connections")
 		select {} // hang forever
 	}
+	// This is where the listener code ends
 
 	ipfsaddr, err := ma.NewMultiaddr(*target)
 	if err != nil {
@@ -102,25 +110,19 @@ func main() {
 	}
 
 	tptaddr := strings.Split(ipfsaddr.String(), "/ipfs/")[0]
+	// This creates a MA with the "/ip4/ipaddr/tcp/port" part of the target
 	tptmaddr, err := ma.NewMultiaddr(tptaddr)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	pi := pstore.PeerInfo{
-		ID:    peerid,
-		Addrs: []ma.Multiaddr{tptmaddr},
-	}
-
-	log.Println("connecting to target")
-	err = ha.Connect(context.Background(), pi)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// We need to add the target to our peerstore, so we know how we can
+	// contact it
+	ha.Peerstore().AddAddr(peerid, tptmaddr, peerstore.PermanentAddrTTL)
 
 	log.Println("opening stream")
 	// make a new stream from host B to host A
-	// it should be handled on host A by the handler we set
+	// it should be handled on host A by the handler we set above
 	s, err := ha.NewStream(context.Background(), peerid, "/echo/1.0.0")
 	if err != nil {
 		log.Fatalln(err)
@@ -139,6 +141,8 @@ func main() {
 	log.Printf("read reply: %q\n", out)
 }
 
+// doEcho reads some data from a stream, writes it back and closes the
+// stream.
 func doEcho(s inet.Stream) {
 	buf := make([]byte, 1024)
 	n, err := s.Read(buf)
