@@ -8,7 +8,7 @@ This example can be started in either listen mode, or dial mode.
 
 In listen mode, it will sit and wait for incoming connections on the
 `/echo/1.0.0` protocol. Whenever it receives a stream, it will write the
-message "Hello, world!" over the stream and close it.
+message `"Hello, world!"` over the stream and close it.
 
 In dial mode, the node will start up, connect to the given address, open a
 stream to the target peer, and read a message on the protocol `/echo/1.0.0`.
@@ -24,11 +24,9 @@ From `go-libp2p` base folder:
 
 ## Usage
 
-In one terminal:
-
 ```
 > ./echo -l 1235
-2016/11/10 10:45:37 I am /ip4/127.0.0.1/tcp/1234/ipfs/QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc
+2016/11/10 10:45:37 I am /ip4/127.0.0.1/tcp/1235/ipfs/QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc
 2016/11/10 10:45:37 listening for connections
 ```
 
@@ -41,11 +39,9 @@ Now, launch another node that talks to the listener:
 > ./echo -d /ip4/127.0.0.1/tcp/1235/ipfs/QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc -l 1236
 ```
 
-
-The new node with send the message `Hello, world!` to the
+The new node with send the message `"Hello, world!"` to the
 listener, which will in turn echo it over the stream and close it. The
 listener logs the message, and the sender logs the response.
-
 
 ## Details
 
