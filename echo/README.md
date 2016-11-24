@@ -19,7 +19,7 @@ From `go-libp2p` base folder:
 
 ```
 > make deps
-> go build ./examples/hosts
+> go build ./examples/echo
 ```
 
 ## Usage
