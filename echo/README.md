@@ -27,7 +27,7 @@ From `go-libp2p` base folder:
 In one terminal:
 
 ```
-> ./hosts -l 1235
+> ./echo -l 1235
 2016/11/10 10:45:37 I am /ip4/127.0.0.1/tcp/1234/ipfs/QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc
 2016/11/10 10:45:37 listening for connections
 ```
@@ -38,7 +38,7 @@ can be reached (ip4+tcp) and its randomly generated ID (`QmNtX1cv...`)
 Now, launch another node that talks to the listener:
 
 ```
-> ./hosts -d /ip4/127.0.0.1/tcp/1234/ipfs/QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc -l 1236
+> ./echo -d /ip4/127.0.0.1/tcp/1234/ipfs/QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc -l 1236
 ```
 
 
