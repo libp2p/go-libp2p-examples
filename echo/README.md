@@ -38,7 +38,7 @@ can be reached (ip4+tcp) and its randomly generated ID (`QmNtX1cv...`)
 Now, launch another node that talks to the listener:
 
 ```
-> ./echo -d /ip4/127.0.0.1/tcp/1234/ipfs/QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc -l 1236
+> ./echo -d /ip4/127.0.0.1/tcp/1235/ipfs/QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc -l 1236
 ```
 
 
