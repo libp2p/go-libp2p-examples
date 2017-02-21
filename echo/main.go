@@ -13,7 +13,6 @@ import (
 	inet "github.com/libp2p/go-libp2p-net"
 	net "github.com/libp2p/go-libp2p-net"
 	peer "github.com/libp2p/go-libp2p-peer"
-	peerstore "github.com/libp2p/go-libp2p-peerstore"
 	pstore "github.com/libp2p/go-libp2p-peerstore"
 	swarm "github.com/libp2p/go-libp2p-swarm"
 	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
@@ -118,7 +117,7 @@ func main() {
 
 	// We need to add the target to our peerstore, so we know how we can
 	// contact it
-	ha.Peerstore().AddAddr(peerid, tptmaddr, peerstore.PermanentAddrTTL)
+	ha.Peerstore().AddAddr(peerid, tptmaddr, pstore.PermanentAddrTTL)
 
 	log.Println("opening stream")
 	// make a new stream from host B to host A
