@@ -10,7 +10,6 @@ import (
 
 	golog "github.com/ipfs/go-log"
 	host "github.com/libp2p/go-libp2p-host"
-	inet "github.com/libp2p/go-libp2p-net"
 	net "github.com/libp2p/go-libp2p-net"
 	peer "github.com/libp2p/go-libp2p-peer"
 	pstore "github.com/libp2p/go-libp2p-peerstore"
@@ -142,7 +141,7 @@ func main() {
 
 // doEcho reads some data from a stream, writes it back and closes the
 // stream.
-func doEcho(s inet.Stream) {
+func doEcho(s net.Stream) {
 	buf := make([]byte, 1024)
 	n, err := s.Read(buf)
 	if err != nil {
