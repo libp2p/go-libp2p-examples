@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"strings"
+	"time"
 
 	golog "github.com/ipfs/go-log"
 	host "github.com/libp2p/go-libp2p-host"
@@ -62,6 +64,7 @@ func makeBasicHost(listen string, secio bool) (host.Host, error) {
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
 	listenF := flag.Int("l", 0, "wait for incoming connections")
 	target := flag.String("d", "", "target peer to dial")
