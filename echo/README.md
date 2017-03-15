@@ -25,18 +25,19 @@ From `go-libp2p` base folder:
 ## Usage
 
 ```
-> ./echo -l 1235
-2016/11/10 10:45:37 I am /ip4/127.0.0.1/tcp/1235/ipfs/QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc
-2016/11/10 10:45:37 listening for connections
+> ./echo -l 10000
+2017/03/15 14:11:32 I am /ip4/127.0.0.1/tcp/10000/ipfs/QmYo41GybvrXk8y8Xnm1P7pfA4YEXCpfnLyzgRPnNbG35e
+2017/03/15 14:11:32 Now run "./echo -l 10001 -d /ip4/127.0.0.1/tcp/10000/ipfs/QmYo41GybvrXk8y8Xnm1P7pfA4YEXCpfnLyzgRPnNbG35e -secio" on a different terminal
+2017/03/15 14:11:32 listening for connections
 ```
 
 The listener libp2p host will print its `Multiaddress`, which indicates how it
-can be reached (ip4+tcp) and its randomly generated ID (`QmNtX1cv...`)
+can be reached (ip4+tcp) and its randomly generated ID (`QmYo41Gyb...`)
 
 Now, launch another node that talks to the listener:
 
 ```
-> ./echo -d /ip4/127.0.0.1/tcp/1235/ipfs/QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc -l 1236
+> ./echo -l 10001 -d /ip4/127.0.0.1/tcp/10000/ipfs/QmYo41GybvrXk8y8Xnm1P7pfA4YEXCpfnLyzgRPnNbG35e
 ```
 
 The new node with send the message `"Hello, world!"` to the
@@ -61,9 +62,9 @@ In order to create the swarm (and a `basichost`), the example needs:
   * An
     [ipfs-procotol ID](https://godoc.org/github.com/libp2p/go-libp2p-peer#ID)
     like `QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc`. The example
-    autogenerates this on every run. An optional key-pair to secure
-    communications can be added to it. The example autogenerates them when
-    using `-secio`.
+    autogenerates a key pair on every run and uses an ID extracted from the
+    public key (the hash of the public key). When using `-secio`, it uses
+    the key pair to encrypt communications.
   * A [Multiaddress](https://godoc.org/github.com/multiformats/go-multiaddr),
     which indicates how to reach this peer. There can be several of them
     (using different protocols or locations for example). Example:
