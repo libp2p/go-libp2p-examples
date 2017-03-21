@@ -18,6 +18,7 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 	gologging "github.com/whyrusleeping/go-logging"
 
+	peerstore "github.com/libp2p/go-libp2p-peerstore"
 	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
 )
 
