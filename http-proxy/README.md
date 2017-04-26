@@ -29,7 +29,7 @@ From `go-libp2p` base folder:
 
 ```
 > make deps
-> go build ./examples/echo
+> go build ./examples/http-proxy
 ```
 
 ## Usage
