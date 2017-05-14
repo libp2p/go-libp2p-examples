@@ -3,10 +3,13 @@ package main
 import (
 	"bufio"
 	"context"
+	"crypto/rand"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
+	mrand "math/rand"
 
 	golog "github.com/ipfs/go-log"
 	crypto "github.com/libp2p/go-libp2p-crypto"
@@ -15,19 +18,30 @@ import (
 	peer "github.com/libp2p/go-libp2p-peer"
 	pstore "github.com/libp2p/go-libp2p-peerstore"
 	swarm "github.com/libp2p/go-libp2p-swarm"
+	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
 	ma "github.com/multiformats/go-multiaddr"
 	gologging "github.com/whyrusleeping/go-logging"
-
-	peerstore "github.com/libp2p/go-libp2p-peerstore"
-	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
+	msmux "github.com/whyrusleeping/go-smux-multistream"
+	yamux "github.com/whyrusleeping/go-smux-yamux"
 )
 
 // makeBasicHost creates a LibP2P host with a random peer ID listening on the
 // given multiaddress. It will use secio if secio is true.
-func makeBasicHost(listenPort int, secio bool) (host.Host, error) {
+func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error) {
+
+	// If the seed is zero, use real cryptographic randomness. Otherwise, use a
+	// deterministic randomness source to make generated keys stay the same
+	// across multiple runs
+	var r io.Reader
+	if randseed == 0 {
+		r = rand.Reader
+	} else {
+		r = mrand.New(mrand.NewSource(randseed))
+	}
+
 	// Generate a key pair for this host. We will use it at least
 	// to obtain a valid host ID.
-	priv, pub, err := crypto.GenerateKeyPair(crypto.RSA, 2048)
+	priv, pub, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
 	if err != nil {
 		return nil, err
 	}
@@ -55,15 +69,27 @@ func makeBasicHost(listenPort int, secio bool) (host.Host, error) {
 		ps.AddPubKey(pid, pub)
 	}
 
+	// Set up stream multiplexer
+	tpt := msmux.NewBlankTransport()
+	tpt.AddTransport("/yamux/1.0.0", yamux.DefaultTransport)
+
 	// Create swarm (implements libP2P Network)
-	netwrk, err := swarm.NewNetwork(
+	swrm, err := swarm.NewSwarmWithProtector(
 		context.Background(),
 		[]ma.Multiaddr{addr},
 		pid,
 		ps,
-		nil)
+		nil,
+		tpt,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
 
-	basicHost := bhost.New(netwrk)
+	netw := (*swarm.Network)(swrm)
+
+	basicHost := bhost.New(netw)
 
 	// Build host multiaddress
 	hostAddr, _ := ma.NewMultiaddr(fmt.Sprintf("/ipfs/%s", basicHost.ID().Pretty()))
@@ -91,6 +117,7 @@ func main() {
 	listenF := flag.Int("l", 0, "wait for incoming connections")
 	target := flag.String("d", "", "target peer to dial")
 	secio := flag.Bool("secio", false, "enable secio")
+	seed := flag.Int64("seed", 0, "set random seed for id generation")
 	flag.Parse()
 
 	if *listenF == 0 {
@@ -98,7 +125,7 @@ func main() {
 	}
 
 	// Make a host that listens on the given multiaddress
-	ha, err := makeBasicHost(*listenF, *secio)
+	ha, err := makeBasicHost(*listenF, *secio, *seed)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -142,7 +169,7 @@ func main() {
 
 	// We have a peer ID and a targetAddr so we add it to the peerstore
 	// so LibP2P knows how to contact it
-	ha.Peerstore().AddAddr(peerid, targetAddr, peerstore.PermanentAddrTTL)
+	ha.Peerstore().AddAddr(peerid, targetAddr, pstore.PermanentAddrTTL)
 
 	log.Println("opening stream")
 	// make a new stream from host B to host A
