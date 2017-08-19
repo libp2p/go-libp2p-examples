@@ -1,4 +1,4 @@
-# Using multicodecs with LibP2P
+# Protocol Multiplexing using multicodecs with libp2p
 
 This examples shows how to use multicodecs (i.e. json) to encode and transmit information between LibP2P hosts using LibP2P Streams.
 
@@ -11,8 +11,8 @@ This example expects that you area already familiar with the [echo example](http
 From `go-libp2p` base folder:
 
 ```
-> make deps-examples
-> go build ./examples/multicodecs
+> make deps-protocol-muxing
+> go build ./examples/protocol-multiplexing-with-multicodecs
 ```
 
 ## Usage
