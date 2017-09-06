@@ -31,7 +31,7 @@ if err != nil {
 // A peerstore holds information about peers, including your own
 ps := pstore.NewPeerstore()
 ps.AddPrivKey(pid, priv)
-ps.AddPubKey(pid, priv)
+ps.AddPubKey(pid, pub)
 ```
 
 Next, you'll need at least one address that you want to listen on. You can go from a string to a multiaddr like this:
