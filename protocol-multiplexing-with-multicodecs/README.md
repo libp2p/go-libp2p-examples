@@ -12,7 +12,7 @@ From `go-libp2p` base folder:
 
 ```
 > make deps-protocol-muxing
-> go build ./examples/protocol-multiplexing-with-multicodecs
+> go build -o multicodecs ./examples/protocol-multiplexing-with-multicodecs
 ```
 
 ## Usage
