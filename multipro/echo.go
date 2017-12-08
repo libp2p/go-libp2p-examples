@@ -8,10 +8,10 @@ import (
 
 	inet "github.com/libp2p/go-libp2p-net"
 
-	p2p "github.com/avive/go-libp2p/examples/multipro/pb"
 	uuid "github.com/google/uuid"
 	assert "github.com/ipfs/go-ipfs/thirdparty/assert"
 	"github.com/libp2p/go-libp2p-host"
+	p2p "github.com/libp2p/go-libp2p/examples/multipro/pb"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 )
 
