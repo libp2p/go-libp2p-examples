@@ -8,9 +8,9 @@ import (
 
 	p2p "github.com/avive/go-libp2p/examples/multipro/pb"
 	uuid "github.com/google/uuid"
+	"github.com/libp2p/go-libp2p-host"
+	inet "github.com/libp2p/go-libp2p-net"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
-	"gx/ipfs/QmRS46AyqtpJBsf1zmQdeizSDEzo1qkWR7rdEuPFAv8237/go-libp2p-host"
-	inet "gx/ipfs/QmbD5yKbXahNvoMqzeuNyKQA9vAs9fUvJg2GXeWU1fVqY5/go-libp2p-net"
 )
 
 // pattern: /protocol-name/request-or-response-message/version

@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"log"
 
-	inet "gx/ipfs/QmbD5yKbXahNvoMqzeuNyKQA9vAs9fUvJg2GXeWU1fVqY5/go-libp2p-net"
+	inet "github.com/libp2p/go-libp2p-net"
 
 	p2p "github.com/avive/go-libp2p/examples/multipro/pb"
 	uuid "github.com/google/uuid"
 	assert "github.com/ipfs/go-ipfs/thirdparty/assert"
+	"github.com/libp2p/go-libp2p-host"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
-	"gx/ipfs/QmRS46AyqtpJBsf1zmQdeizSDEzo1qkWR7rdEuPFAv8237/go-libp2p-host"
 )
 
 // pattern: /protocol-name/request-or-response-message/version
