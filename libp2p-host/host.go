@@ -7,7 +7,6 @@ import (
 
 	libp2p "github.com/libp2p/go-libp2p"
 	crypto "github.com/libp2p/go-libp2p-crypto"
-	ma "github.com/multiformats/go-multiaddr"
 )
 
 func main() {
@@ -23,27 +22,23 @@ func main() {
 
 	fmt.Printf("Hello World, my hosts ID is %s\n", h.ID())
 
-	// If you want more control over the configuration, you can fill out fields
-	// in the libp2p config, and use `NewWithCfg`
-	cfg := new(libp2p.Config)
+	// If you want more control over the configuration, you can specify some
+	// options to the constructor
 
 	// Set your own keypair
 	priv, _, err := crypto.GenerateEd25519Key(rand.Reader)
 	if err != nil {
 		panic(err)
 	}
-	cfg.PeerKey = priv
 
-	// Set your own listen address
-	maddr, err := ma.NewMultiaddr("/ip4/0.0.0.0/tcp/9000")
-	if err != nil {
-		panic(err)
-	}
+	h2, err := libp2p.New(ctx,
+		// Use your own created keypair
+		libp2p.WithPeerKey(priv),
 
-	// The config takes an array of addresses, specify as many as you want.
-	cfg.ListenAddrs = []ma.Multiaddr{maddr}
-
-	h2, err := libp2p.NewWithCfg(ctx, cfg)
+		// Set your own listen address
+		// The config takes an array of addresses, specify as many as you want.
+		libp2p.ListenAddrStrings("/ip4/0.0.0.0/tcp/9000"),
+	)
 	if err != nil {
 		panic(err)
 	}

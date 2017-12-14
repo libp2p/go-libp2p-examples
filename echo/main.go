@@ -18,12 +18,8 @@ import (
 	net "github.com/libp2p/go-libp2p-net"
 	peer "github.com/libp2p/go-libp2p-peer"
 	pstore "github.com/libp2p/go-libp2p-peerstore"
-	swarm "github.com/libp2p/go-libp2p-swarm"
-	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
 	ma "github.com/multiformats/go-multiaddr"
 	gologging "github.com/whyrusleeping/go-logging"
-	msmux "github.com/whyrusleeping/go-smux-multistream"
-	yamux "github.com/whyrusleeping/go-smux-yamux"
 )
 
 // makeBasicHost creates a LibP2P host with a random peer ID listening on the
@@ -42,37 +38,21 @@ func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error
 
 	// Generate a key pair for this host. We will use it at least
 	// to obtain a valid host ID.
-	priv, pub, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
+	priv, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
 	if err != nil {
 		return nil, err
 	}
 
-	// Obtain Peer ID from public key
-	pid, err := peer.IDFromPublicKey(pub)
-	if err != nil {
-		return nil, err
+	opts := []libp2p.Option{
+		libp2p.ListenAddrStrings(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", listenPort)),
+		libp2p.WithPeerKey(priv),
 	}
 
-	// Create a multiaddress
-	addr, err := ma.NewMultiaddr(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", listenPort))
-
-	if err != nil {
-		return nil, err
+	if !secio {
+		opts = append(opts, libp2p.NoSecio)
 	}
 
-	// Create a peerstore
-	ps := pstore.NewPeerstore()
-
-	// If using secio, we add the keys to the peerstore
-	// for this peer ID.
-	if secio {
-		ps.AddPrivKey(pid, priv)
-		ps.AddPubKey(pid, pub)
-	}
-
-	basicHost, err := libp2p.NewWithCfg(ctx, &libp2p.Config{
-		ListenAddrs: []ma.Multiaddr{addr},
-	})
+	basicHost, err := libp2p.New(context.Background(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,6 +62,7 @@ func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error
 
 	// Now we can build a full multiaddress to reach this host
 	// by encapsulating both addresses:
+	addr := basicHost.Addrs()[0]
 	fullAddr := addr.Encapsulate(hostAddr)
 	log.Printf("I am %s\n", fullAddr)
 	if secio {
