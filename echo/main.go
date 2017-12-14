@@ -12,6 +12,7 @@ import (
 	mrand "math/rand"
 
 	golog "github.com/ipfs/go-log"
+	libp2p "github.com/libp2p/go-libp2p"
 	crypto "github.com/libp2p/go-libp2p-crypto"
 	host "github.com/libp2p/go-libp2p-host"
 	net "github.com/libp2p/go-libp2p-net"
@@ -69,27 +70,12 @@ func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error
 		ps.AddPubKey(pid, pub)
 	}
 
-	// Set up stream multiplexer
-	tpt := msmux.NewBlankTransport()
-	tpt.AddTransport("/yamux/1.0.0", yamux.DefaultTransport)
-
-	// Create swarm (implements libP2P Network)
-	swrm, err := swarm.NewSwarmWithProtector(
-		context.Background(),
-		[]ma.Multiaddr{addr},
-		pid,
-		ps,
-		nil,
-		tpt,
-		nil,
-	)
+	basicHost, err := libp2p.NewWithCfg(ctx, &libp2p.Config{
+		ListenAddrs: []ma.Multiaddr{addr},
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	netw := (*swarm.Network)(swrm)
-
-	basicHost := bhost.New(netw)
 
 	// Build host multiaddress
 	hostAddr, _ := ma.NewMultiaddr(fmt.Sprintf("/ipfs/%s", basicHost.ID().Pretty()))
