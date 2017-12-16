@@ -33,7 +33,7 @@ func main() {
 
 	h2, err := libp2p.New(ctx,
 		// Use your own created keypair
-		libp2p.WithPeerKey(priv),
+		libp2p.Identity(priv),
 
 		// Set your own listen address
 		// The config takes an array of addresses, specify as many as you want.

@@ -45,11 +45,11 @@ func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error
 
 	opts := []libp2p.Option{
 		libp2p.ListenAddrStrings(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", listenPort)),
-		libp2p.WithPeerKey(priv),
+		libp2p.Identity(priv),
 	}
 
 	if !secio {
-		opts = append(opts, libp2p.NoSecio)
+		opts = append(opts, libp2p.NoEncryption())
 	}
 
 	basicHost, err := libp2p.New(context.Background(), opts...)
