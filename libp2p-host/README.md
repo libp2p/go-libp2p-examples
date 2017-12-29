@@ -59,7 +59,7 @@ import (
 ctx := context.Background()
 
 // Put all this together
-netw, err := swarm.NewNetwork(ctx, []ma.Multiaddr{maddr}, ident.ID(), ps, nil)
+netw, err := swarm.NewNetwork(ctx, []ma.Multiaddr{maddr}, pid, ps, nil)
 if err != nil {
 	panic(err)
 }
