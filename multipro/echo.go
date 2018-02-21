@@ -8,7 +8,6 @@ import (
 
 	inet "github.com/libp2p/go-libp2p-net"
 
-	assert "github.com/ipfs/go-ipfs/thirdparty/assert"
 	"github.com/libp2p/go-libp2p-host"
 	p2p "github.com/libp2p/go-libp2p/examples/multipro/pb"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
@@ -114,7 +113,9 @@ func (e *EchoProtocol) onEchoResponse(s inet.Stream) {
 		return
 	}
 
-	assert.True(req.Message == data.Message, nil, "Expected echo to respond with request message")
+	if req.Message != data.Message {
+		log.Fatalln("Expected echo to respond with request message")
+	}
 
 	log.Printf("%s: Received echo response from %s. Message id:%s. Message: %s.", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.MessageData.Id, data.Message)
 	e.done <- true
