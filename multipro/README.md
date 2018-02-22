@@ -6,23 +6,33 @@ This example expects that you area already familiar with the [echo example](http
 
 ## Build
 
-Compile the .proto files using the protobufs go compiler:
+Install gx:
+```sh
+> go get -u github.com/whyrusleeping/gx
 
 ```
-protoc --go_out=. ./p2p.proto
+
+Run GX from the root libp2p source dir: 
+```sh
+>gx install
 ```
 
-
-From `multipro` base source folder:
-
+Build libp2p:
+```sh
+> make deps
+> make
 ```
+
+Run from `multipro` directory
+
+```sh
 > go build
 ```
 
 
 ## Usage
 
-```
+```sh
 > ./multipro
 
 ```
@@ -31,7 +41,7 @@ From `multipro` base source folder:
 
 The example creates two LibP2P Hosts supporting 2 protocols: ping and echo.
 
-Each protocol consists RPC-style requests and respones and each request and response is a typed protobufs message (and a go data object).
+Each protocol consists RPC-style requests and responses and each request and response is a typed protobufs message (and a go data object).
 
 This is a different pattern then defining a whole p2p protocol as one protobuf message with lots of optional fields (as can be observed in various p2p-lib protocols using protobufs such as dht).
 
