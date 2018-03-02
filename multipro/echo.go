@@ -9,7 +9,7 @@ import (
 	inet "github.com/libp2p/go-libp2p-net"
 
 	"github.com/libp2p/go-libp2p-host"
-	p2p "github.com/libp2p/go-libp2p/examples/multipro/pb"
+	pb "github.com/libp2p/go-libp2p/examples/multipro/pb"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 	uuid "github.com/satori/go.uuid"
 )
@@ -19,13 +19,13 @@ const echoRequest = "/echo/echoreq/0.0.1"
 const echoResponse = "/echo/echoresp/0.0.1"
 
 type EchoProtocol struct {
-	node     *Node                       // local host
-	requests map[string]*p2p.EchoRequest // used to access request data from response handlers
-	done     chan bool                   // only for demo purposes to hold main from terminating
+	node     *Node                      // local host
+	requests map[string]*pb.EchoRequest // used to access request data from response handlers
+	done     chan bool                  // only for demo purposes to hold main from terminating
 }
 
 func NewEchoProtocol(node *Node, done chan bool) *EchoProtocol {
-	e := EchoProtocol{node: node, requests: make(map[string]*p2p.EchoRequest), done: done}
+	e := EchoProtocol{node: node, requests: make(map[string]*pb.EchoRequest), done: done}
 	node.SetStreamHandler(echoRequest, e.onEchoRequest)
 	node.SetStreamHandler(echoResponse, e.onEchoResponse)
 
@@ -38,7 +38,7 @@ func NewEchoProtocol(node *Node, done chan bool) *EchoProtocol {
 // remote peer requests handler
 func (e *EchoProtocol) onEchoRequest(s inet.Stream) {
 	// get request data
-	data := &p2p.EchoRequest{}
+	data := &pb.EchoRequest{}
 	decoder := protobufCodec.Multicodec(nil).Decoder(bufio.NewReader(s))
 	err := decoder.Decode(data)
 	if err != nil {
@@ -59,7 +59,7 @@ func (e *EchoProtocol) onEchoRequest(s inet.Stream) {
 
 	// send response to the request using the message string he provided
 
-	resp := &p2p.EchoResponse{
+	resp := &pb.EchoResponse{
 		MessageData: e.node.NewMessageData(data.MessageData.Id, false),
 		Message:     data.Message}
 
@@ -88,7 +88,7 @@ func (e *EchoProtocol) onEchoRequest(s inet.Stream) {
 
 // remote echo response handler
 func (e *EchoProtocol) onEchoResponse(s inet.Stream) {
-	data := &p2p.EchoResponse{}
+	data := &pb.EchoResponse{}
 	decoder := protobufCodec.Multicodec(nil).Decoder(bufio.NewReader(s))
 	err := decoder.Decode(data)
 	if err != nil {
@@ -125,7 +125,7 @@ func (e *EchoProtocol) Echo(host host.Host) bool {
 	log.Printf("%s: Sending echo to: %s....", e.node.ID(), host.ID())
 
 	// create message data
-	req := &p2p.EchoRequest{
+	req := &pb.EchoRequest{
 		MessageData: e.node.NewMessageData(uuid.Must(uuid.NewV4()).String(), false),
 		Message:     fmt.Sprintf("Echo from %s", e.node.ID())}
 
