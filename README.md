@@ -12,3 +12,4 @@ Let us know if you find any issue or if you want to contribute and add a new tut
 - [Protocol Multiplexing with multicodecs](./protocol-multiplexing-with-multicodecs)
 - [An echo host](./echo)
 - [Multicodecs with protobufs](./multipro)
+- [P2P chat application](./chat)
