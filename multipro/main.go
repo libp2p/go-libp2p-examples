@@ -6,11 +6,9 @@ import (
 	"log"
 	"math/rand"
 
+	libp2p "github.com/libp2p/go-libp2p"
 	crypto "github.com/libp2p/go-libp2p-crypto"
-	peer "github.com/libp2p/go-libp2p-peer"
 	ps "github.com/libp2p/go-libp2p-peerstore"
-	swarm "github.com/libp2p/go-libp2p-swarm"
-	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
 	ma "github.com/multiformats/go-multiaddr"
 )
 
@@ -18,14 +16,13 @@ import (
 func makeRandomNode(port int, done chan bool) *Node {
 	// Ignoring most errors for brevity
 	// See echo example for more details and better implementation
-	priv, pub, _ := crypto.GenerateKeyPair(crypto.Secp256k1, 256)
-	pid, _ := peer.IDFromPublicKey(pub)
+	priv, _, _ := crypto.GenerateKeyPair(crypto.Secp256k1, 256)
 	listen, _ := ma.NewMultiaddr(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", port))
-	peerStore := ps.NewPeerstore()
-	peerStore.AddPrivKey(pid, priv)
-	peerStore.AddPubKey(pid, pub)
-	n, _ := swarm.NewNetwork(context.Background(), []ma.Multiaddr{listen}, pid, peerStore, nil)
-	host := bhost.New(n)
+	host, _ := libp2p.New(
+		context.Background(),
+		libp2p.ListenAddrs(listen),
+		libp2p.Identity(priv),
+	)
 
 	return NewNode(host, done)
 }

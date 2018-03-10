@@ -39,13 +39,13 @@ import (
 	mrand "math/rand"
 	"os"
 
+	"github.com/libp2p/go-libp2p"
+
 	"github.com/libp2p/go-libp2p-crypto"
 	"github.com/libp2p/go-libp2p-host"
 	"github.com/libp2p/go-libp2p-net"
 	"github.com/libp2p/go-libp2p-peer"
 	"github.com/libp2p/go-libp2p-peerstore"
-	"github.com/libp2p/go-libp2p-swarm"
-	"github.com/libp2p/go-libp2p/p2p/host/basic"
 	"github.com/multiformats/go-multiaddr"
 )
 
@@ -155,36 +155,26 @@ func main() {
 	}
 
 	// Creates a new RSA key pair for this host
-	prvKey, pubKey, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
+	prvKey, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
 
 	if err != nil {
 		panic(err)
 	}
-
-	// Getting host ID from public key.
-	// host ID is the hash of public key
-	nodeID, _ := peer.IDFromPublicKey(pubKey)
 
 	// 0.0.0.0 will listen on any interface device
 	sourceMultiAddr, _ := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", *sourcePort))
 
-	// Adding self to the peerstore.
-	ps := peerstore.NewPeerstore()
-	ps.AddPrivKey(nodeID, prvKey)
-	ps.AddPubKey(nodeID, pubKey)
-
-	// Creating a new Swarm network.
-	network, err := swarm.NewNetwork(context.Background(), []multiaddr.Multiaddr{sourceMultiAddr}, nodeID, ps, nil)
+	// libp2p.New constructs a new libp2p Host.
+	// Other options can be added here.
+	host, err := libp2p.New(
+		context.Background(),
+		libp2p.ListenAddrs(sourceMultiAddr),
+		libp2p.Identity(prvKey),
+	)
 
 	if err != nil {
 		panic(err)
 	}
-
-	// NewHost constructs a new *BasicHost and activates it by attaching its
-	// stream and connection handlers to the given inet.Network (network).
-	// Other options like NATManager can also be added here.
-	// See docs: https://godoc.org/github.com/libp2p/go-libp2p/p2p/host/basic#HostOpts
-	host := basichost.New(network)
 
 	if *dest == "" {
 		// Set a function as stream handler.

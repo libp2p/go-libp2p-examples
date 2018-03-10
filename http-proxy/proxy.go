@@ -12,16 +12,14 @@ import (
 
 	// We need to import libp2p's libraries that we use in this project.
 	// In order to work, these libraries need to be rewritten by gx-go.
-	crypto "github.com/libp2p/go-libp2p-crypto"
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
 	peer "github.com/libp2p/go-libp2p-peer"
 	ps "github.com/libp2p/go-libp2p-peerstore"
-	swarm "github.com/libp2p/go-libp2p-swarm"
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr-net"
 
-	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
+	libp2p "github.com/libp2p/go-libp2p"
 )
 
 // Protocol defines the libp2p protocol that we will use for the libp2p proxy
@@ -33,27 +31,11 @@ const Protocol = "/proxy-example/0.0.1"
 // makeRandomHost creates a libp2p host with a randomly generated identity.
 // This step is described in depth in other tutorials.
 func makeRandomHost(port int) host.Host {
-	priv, pub, err := crypto.GenerateKeyPair(crypto.RSA, 2048)
+	host, err := libp2p.New(context.Background(), libp2p.ListenAddrStrings(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", port)))
 	if err != nil {
 		log.Fatalln(err)
 	}
-	pid, err := peer.IDFromPublicKey(pub)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	listen, err := ma.NewMultiaddr(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", port))
-	if err != nil {
-		log.Fatalln(err)
-	}
-	ps := ps.NewPeerstore()
-	ps.AddPrivKey(pid, priv)
-	ps.AddPubKey(pid, pub)
-	n, err := swarm.NewNetwork(context.Background(),
-		[]ma.Multiaddr{listen}, pid, ps, nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	return bhost.New(n)
+	return host
 }
 
 // ProxyService provides HTTP proxying on top of libp2p by launching an

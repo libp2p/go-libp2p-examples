@@ -8,15 +8,11 @@ import (
 	"math/rand"
 	"time"
 
-	crypto "github.com/libp2p/go-libp2p-crypto"
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
-	peer "github.com/libp2p/go-libp2p-peer"
 	ps "github.com/libp2p/go-libp2p-peerstore"
-	swarm "github.com/libp2p/go-libp2p-swarm"
-	ma "github.com/multiformats/go-multiaddr"
 
-	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
+	libp2p "github.com/libp2p/go-libp2p"
 	multicodec "github.com/multiformats/go-multicodec"
 	json "github.com/multiformats/go-multicodec/json"
 )
@@ -80,17 +76,11 @@ var conversationMsgs = []string{
 }
 
 func makeRandomHost(port int) host.Host {
-	// Ignoring most errors for brevity
-	// See echo example for more details and better implementation
-	priv, pub, _ := crypto.GenerateKeyPair(crypto.RSA, 2048)
-	pid, _ := peer.IDFromPublicKey(pub)
-	listen, _ := ma.NewMultiaddr(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", port))
-	ps := ps.NewPeerstore()
-	ps.AddPrivKey(pid, priv)
-	ps.AddPubKey(pid, pub)
-	n, _ := swarm.NewNetwork(context.Background(),
-		[]ma.Multiaddr{listen}, pid, ps, nil)
-	return bhost.New(n)
+	h, err := libp2p.New(context.Background(), libp2p.ListenAddrStrings(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", port)))
+	if err != nil {
+		panic(err)
+	}
+	return h
 }
 
 func main() {
