@@ -4,73 +4,54 @@ For most applications, the host is the basic building block you'll need to get s
 
 The host is an abstraction that manages services on top of a swarm. It provides a clean interface to connect to a service on a given remote peer.
 
-First, you'll need an ID, and a place to store that ID. To generate an ID, you can do the following:
-
-```go
-import (
-	"crypto/rand"
-
-	crypto "github.com/libp2p/go-libp2p-crypto"
-	peer "github.com/libp2p/go-libp2p-peer"
-	pstore "github.com/libp2p/go-libp2p-peerstore"
-)
-
-// Generate an identity keypair using go's cryptographic randomness source
-priv, pub, err := crypto.GenerateEd25519Key(rand.Reader)
-if err != nil {
-	panic(err)
-}
-
-// A peers ID is the hash of its public key
-pid, err := peer.IDFromPublicKey(pub)
-if err != nil {
-	panic(err)
-}
-
-// We've created the identity, now we need to store it.
-// A peerstore holds information about peers, including your own
-ps := pstore.NewPeerstore()
-ps.AddPrivKey(pid, priv)
-ps.AddPubKey(pid, pub)
-```
-
-Next, you'll need at least one address that you want to listen on. You can go from a string to a multiaddr like this:
-
-```go
-import ma "github.com/multiformats/go-multiaddr"
-
-...
-
-maddr, err := ma.NewMultiaddr("/ip4/0.0.0.0/tcp/9000")
-if err != nil {
-	panic(err)
-}
-```
-
-Now you know who you are, and where you live (in a manner of speaking). The next step is setting up a 'swarm network' to handle all the peers you will connect to. The swarm handles incoming connections from other peers, and handles the negotiation of new outbound connections.
+If you want to create a host with a default configuration, you can do the following:
 
 ```go
 import (
 	"context"
-	swarm "github.com/libp2p/go-libp2p-swarm"
+	"crypto/rand"
+	"fmt"
+
+	libp2p "github.com/libp2p/go-libp2p"
+	crypto "github.com/libp2p/go-libp2p-crypto"
 )
 
-// Make a context to govern the lifespan of the swarm
-ctx := context.Background()
 
-// Put all this together
-netw, err := swarm.NewNetwork(ctx, []ma.Multiaddr{maddr}, pid, ps, nil)
+// The context governs the lifetime of the libp2p node
+ctx, cancel := context.WithCancel(context.Background())
+defer cancel()
+
+// To construct a simple host with all the default settings, just use `New`
+h, err := libp2p.New(ctx)
 if err != nil {
 	panic(err)
 }
+
+fmt.Printf("Hello World, my hosts ID is %s\n", h.ID())
 ```
 
-At this point, we have everything needed to finally construct a host. That call is the simplest one so far:
+If you want more control over the configuration, you can specify some options to the constructor. In this snippet we generate our own ID and specified on which address we want to listen:
 
 ```go
-import bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
+// Set your own keypair
+priv, _, err := crypto.GenerateEd25519Key(rand.Reader)
+if err != nil {
+	panic(err)
+}
 
-myhost := bhost.New(netw)
+h2, err := libp2p.New(ctx,
+	// Use your own created keypair
+	libp2p.Identity(priv),
+
+	// Set your own listen address
+	// The config takes an array of addresses, specify as many as you want.
+	libp2p.ListenAddrStrings("/ip4/0.0.0.0/tcp/9000"),
+)
+if err != nil {
+	panic(err)
+}
+
+fmt.Printf("Hello World, my second hosts ID is %s\n", h2.ID())
 ```
 
 And thats it, you have a libp2p host and you're ready to start doing some awesome p2p networking!
