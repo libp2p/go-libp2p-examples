@@ -30,7 +30,9 @@ if err != nil {
 fmt.Printf("Hello World, my hosts ID is %s\n", h.ID())
 ```
 
-If you want more control over the configuration, you can specify some options to the constructor. In this snippet we generate our own ID and specified on which address we want to listen:
+If you want more control over the configuration, you can specify some options to the constructor. For a full list of all the configuration supported by the constructor see: [options.go](https://github.com/libp2p/go-libp2p/blob/master/options.go)
+
+In this snippet we generate our own ID and specified on which address we want to listen:
 
 ```go
 // Set your own keypair
