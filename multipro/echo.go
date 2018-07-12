@@ -8,10 +8,10 @@ import (
 
 	inet "github.com/libp2p/go-libp2p-net"
 
+	uuid "github.com/google/uuid"
 	"github.com/libp2p/go-libp2p-host"
 	pb "github.com/libp2p/go-libp2p/examples/multipro/pb"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
-	uuid "github.com/satori/go.uuid"
 )
 
 // pattern: /protocol-name/request-or-response-message/version
@@ -126,7 +126,7 @@ func (e *EchoProtocol) Echo(host host.Host) bool {
 
 	// create message data
 	req := &pb.EchoRequest{
-		MessageData: e.node.NewMessageData(uuid.Must(uuid.NewV4()).String(), false),
+		MessageData: e.node.NewMessageData(uuid.New().String(), false),
 		Message:     fmt.Sprintf("Echo from %s", e.node.ID())}
 
 	signature, err := e.node.signProtoMessage(req)

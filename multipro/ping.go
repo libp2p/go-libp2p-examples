@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"log"
 
+	uuid "github.com/google/uuid"
 	"github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
 	p2p "github.com/libp2p/go-libp2p/examples/multipro/pb"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
-	uuid "github.com/satori/go.uuid"
 )
 
 // pattern: /protocol-name/request-or-response-message/version
@@ -116,7 +116,7 @@ func (p *PingProtocol) Ping(host host.Host) bool {
 	log.Printf("%s: Sending ping to: %s....", p.node.ID(), host.ID())
 
 	// create message data
-	req := &p2p.PingRequest{MessageData: p.node.NewMessageData(uuid.Must(uuid.NewV4()).String(), false),
+	req := &p2p.PingRequest{MessageData: p.node.NewMessageData(uuid.New().String(), false),
 		Message: fmt.Sprintf("Ping from %s", p.node.ID())}
 
 	// sign the data
