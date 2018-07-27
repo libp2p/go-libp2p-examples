@@ -10,7 +10,7 @@ import (
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
 	peer "github.com/libp2p/go-libp2p-peer"
-	p2p "github.com/libp2p/go-libp2p/examples/multipro/pb"
+	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 )
 

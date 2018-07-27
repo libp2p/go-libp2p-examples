@@ -10,7 +10,7 @@ import (
 
 	uuid "github.com/google/uuid"
 	"github.com/libp2p/go-libp2p-host"
-	pb "github.com/libp2p/go-libp2p/examples/multipro/pb"
+	pb "github.com/libp2p/go-libp2p-examples/multipro/pb"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 )
 
