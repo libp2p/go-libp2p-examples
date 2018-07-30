@@ -58,7 +58,7 @@ defer h2discService.Close()
 We can inspect what happens on a package level when the mDNS service starts in 
 both peers using a packet inspection tool:
 
-![mDNS in action](http://www.giphy.com/gifs/1k2WcHlUpT7oCPPIaK)
+![mDNS in action](https://media.giphy.com/media/1k2WcHlUpT7oCPPIaK/giphy.gif)
 
 First, each of the peers send a package with a `QM` query to the multicast address
 224.0.0.251. Once the queries as received by each host, they reply with a `PTR`
