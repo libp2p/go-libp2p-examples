@@ -7,10 +7,11 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	crypto "github.com/libp2p/go-libp2p-crypto"
+	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
 	peer "github.com/libp2p/go-libp2p-peer"
-	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
+	b58 "github.com/mr-tron/base58/base58"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 )
 
@@ -59,9 +60,16 @@ func (n *Node) authenticateMessage(message proto.Message, data *p2p.MessageData)
 		return false
 	}
 
+	// restore signature binary format from base58 encoded string
+	sigBytes, err := b58.Decode(sign)
+	if err != nil {
+		log.Println(err, "Failed to decode signature from base58")
+		return false
+	}
+
 	// verify the data was authored by the signing peer identified by the public key
 	// and signature included in the message
-	return n.verifyData(bin, []byte(sign), peerId, data.NodePubKey)
+	return n.verifyData(bin, sigBytes, peerId, data.NodePubKey)
 }
 
 // sign an outgoing p2p message payload
