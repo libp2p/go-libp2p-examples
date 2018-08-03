@@ -7,9 +7,10 @@ import (
 	"log"
 
 	uuid "github.com/google/uuid"
+	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
 	"github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
-	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
+	b58 "github.com/mr-tron/base58/base58"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 )
 
@@ -56,7 +57,7 @@ func (p *PingProtocol) onPingRequest(s inet.Stream) {
 	log.Printf("%s: Sending ping response to %s. Message id: %s...", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.MessageData.Id)
 
 	resp := &p2p.PingResponse{MessageData: p.node.NewMessageData(data.MessageData.Id, false),
-		Message: fmt.Sprintf("Ping response from %s", p.node.ID())}
+		Message: fmt.Sprintf("Ping response from %s", p.node.ID().Pretty())}
 
 	// sign the data
 	signature, err := p.node.signProtoMessage(resp)
@@ -66,7 +67,7 @@ func (p *PingProtocol) onPingRequest(s inet.Stream) {
 	}
 
 	// add the signature to the message
-	resp.MessageData.Sign = string(signature)
+	resp.MessageData.Sign = b58.Encode(signature)
 
 	// send the response
 	s, respErr := p.node.NewStream(context.Background(), s.Conn().RemotePeer(), pingResponse)
@@ -113,11 +114,11 @@ func (p *PingProtocol) onPingResponse(s inet.Stream) {
 }
 
 func (p *PingProtocol) Ping(host host.Host) bool {
-	log.Printf("%s: Sending ping to: %s....", p.node.ID(), host.ID())
+	log.Printf("%s: Sending ping to: %s....", p.node.ID().Pretty(), host.ID().Pretty())
 
 	// create message data
 	req := &p2p.PingRequest{MessageData: p.node.NewMessageData(uuid.New().String(), false),
-		Message: fmt.Sprintf("Ping from %s", p.node.ID())}
+		Message: fmt.Sprintf("Ping from %s", p.node.ID().Pretty())}
 
 	// sign the data
 	signature, err := p.node.signProtoMessage(req)
@@ -127,7 +128,7 @@ func (p *PingProtocol) Ping(host host.Host) bool {
 	}
 
 	// add the signature to the message
-	req.MessageData.Sign = string(signature)
+	req.MessageData.Sign = b58.Encode(signature)
 
 	s, err := p.node.NewStream(context.Background(), host.ID(), pingRequest)
 	if err != nil {
@@ -143,6 +144,6 @@ func (p *PingProtocol) Ping(host host.Host) bool {
 
 	// store ref request so response handler has access to it
 	p.requests[req.MessageData.Id] = req
-	log.Printf("%s: Ping to: %s was sent. Message Id: %s, Message: %s", p.node.ID(), host.ID(), req.MessageData.Id, req.Message)
+	log.Printf("%s: Ping to: %s was sent. Message Id: %s, Message: %s", p.node.ID().Pretty(), host.ID().Pretty(), req.MessageData.Id, req.Message)
 	return true
 }

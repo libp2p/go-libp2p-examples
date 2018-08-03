@@ -41,7 +41,7 @@ func main() {
 	h1.Peerstore().AddAddrs(h2.ID(), h2.Addrs(), ps.PermanentAddrTTL)
 	h2.Peerstore().AddAddrs(h1.ID(), h1.Addrs(), ps.PermanentAddrTTL)
 
-	log.Printf("This is a conversation between %s and %s\n", h1.ID(), h2.ID())
+	log.Printf("This is a conversation between %s and %s\n", h1.ID().Pretty(), h2.ID().Pretty())
 
 	// send messages using the protocols
 	h1.Ping(h2.Host)

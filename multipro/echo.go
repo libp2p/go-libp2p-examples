@@ -9,8 +9,9 @@ import (
 	inet "github.com/libp2p/go-libp2p-net"
 
 	uuid "github.com/google/uuid"
-	"github.com/libp2p/go-libp2p-host"
 	pb "github.com/libp2p/go-libp2p-examples/multipro/pb"
+	"github.com/libp2p/go-libp2p-host"
+	b58 "github.com/mr-tron/base58/base58"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 )
 
@@ -71,7 +72,7 @@ func (e *EchoProtocol) onEchoRequest(s inet.Stream) {
 	}
 
 	// add the signature to the message
-	resp.MessageData.Sign = string(signature)
+	resp.MessageData.Sign = b58.Encode(signature)
 
 	s, respErr := e.node.NewStream(context.Background(), s.Conn().RemotePeer(), echoResponse)
 	if respErr != nil {
@@ -117,17 +118,17 @@ func (e *EchoProtocol) onEchoResponse(s inet.Stream) {
 		log.Fatalln("Expected echo to respond with request message")
 	}
 
-	log.Printf("%s: Received echo response from %s. Message id:%s. Message: %s.", s.Conn().LocalPeer(), s.Conn().RemotePeer(), data.MessageData.Id, data.Message)
+	log.Printf("%s: Received echo response from %s. Message id:%s. Message: %s.", s.Conn().LocalPeer().Pretty(), s.Conn().RemotePeer().Pretty(), data.MessageData.Id, data.Message)
 	e.done <- true
 }
 
 func (e *EchoProtocol) Echo(host host.Host) bool {
-	log.Printf("%s: Sending echo to: %s....", e.node.ID(), host.ID())
+	log.Printf("%s: Sending echo to: %s....", e.node.ID().Pretty(), host.ID().Pretty())
 
 	// create message data
 	req := &pb.EchoRequest{
 		MessageData: e.node.NewMessageData(uuid.New().String(), false),
-		Message:     fmt.Sprintf("Echo from %s", e.node.ID())}
+		Message:     fmt.Sprintf("Echo from %s", e.node.ID().Pretty())}
 
 	signature, err := e.node.signProtoMessage(req)
 	if err != nil {
@@ -136,7 +137,7 @@ func (e *EchoProtocol) Echo(host host.Host) bool {
 	}
 
 	// add the signature to the message
-	req.MessageData.Sign = string(signature)
+	req.MessageData.Sign = b58.Encode(signature)
 
 	s, err := e.node.NewStream(context.Background(), host.ID(), echoRequest)
 	if err != nil {
@@ -152,6 +153,6 @@ func (e *EchoProtocol) Echo(host host.Host) bool {
 
 	// store request so response handler has access to it
 	e.requests[req.MessageData.Id] = req
-	log.Printf("%s: Echo to: %s was sent. Message Id: %s, Message: %s", e.node.ID(), host.ID(), req.MessageData.Id, req.Message)
+	log.Printf("%s: Echo to: %s was sent. Message Id: %s, Message: %s", e.node.ID().Pretty(), host.ID().Pretty(), req.MessageData.Id, req.Message)
 	return true
 }
