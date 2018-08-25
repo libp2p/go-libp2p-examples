@@ -12,3 +12,4 @@ Let us know if you find any issue or if you want to contribute and add a new tut
 - [An echo host](./echo)
 - [Multicodecs with protobufs](./multipro)
 - [P2P chat application](./chat)
+- [P2P chat application w/ rendezvous peer discovery](./chat-with-rendezvous)
