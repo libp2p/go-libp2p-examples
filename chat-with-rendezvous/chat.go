@@ -38,7 +38,7 @@ func handleStream(stream net.Stream) {
 	go readData(rw)
 	go writeData(rw)
 
-	// stream 's' will stay open until you close it (or the other side closes it).
+	// 'stream' will stay open until you close it (or the other side closes it).
 }
 func readData(rw *bufio.ReadWriter) {
 	for {

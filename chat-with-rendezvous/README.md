@@ -1,4 +1,4 @@
-# p2p chat app with libp2p
+# p2p chat app with libp2p [support peer discovery]
 
 This program demonstrates a simple p2p chat application. You will learn how to discover a peer in the network (using kad-dht), connect to it and open a chat stream. 
 
@@ -25,9 +25,7 @@ ctx := context.Background()
 
 // libp2p.New constructs a new libp2p Host.
 // Other options can be added here.
-host, err := libp2p.New(
-    ctx,
-)
+host, err := libp2p.New(ctx)
 ```
 [libp2p.New](https://godoc.org/github.com/libp2p/go-libp2p#New) is the constructor for libp2p node. It creates a host with given configuration. Right now, all the options are default, documented [here](https://godoc.org/github.com/libp2p/go-libp2p#New)
 
@@ -50,7 +48,7 @@ func handleStream(stream net.Stream) {
     go readData(rw)
     go writeData(rw)
 
-    // stream 's' will stay open until you close it (or the other side closes it).
+    // 'stream' will stay open until you close it (or the other side closes it).
 }
 ```
 
@@ -97,6 +95,8 @@ if err := dht.Provide(tctx, rendezvousPoint, true); err != nil {
 ```go
 peers, err := dht.FindProviders(tctx, rendezvousPoint)
 ```
+
+**Note:** Although [dht.Provide](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.Provide) and [dht.FindProviders](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.FindProviders) works for a rendezvous peer discovery this is not the right way to doing it. Libp2p is currently working on an actual rendezvous protocol ([libp2p/specs#56](https://github.com/libp2p/specs/pull/56)) which can be used for bootstrap purposes, real time peer discovery and application specific routing.
 
 7. **Open streams to peers found.**
 
