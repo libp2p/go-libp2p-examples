@@ -6,15 +6,15 @@ This examples shows how to use multicodecs (i.e. json) to encode and transmit in
 
 Multicodecs present a common interface, making it very easy to swap the codec implementation if needed.
 
-This example expects that you area already familiar with the [echo example](https://github.com/libp2p/go-libp2p/tree/master/examples/echo).
+This example expects that you area already familiar with the [echo example](https://github.com/libp2p/go-libp2p-examples/tree/master/echo).
 
 ## Build
 
-From `go-libp2p` base folder:
+From `go-libp2p-examples` base folder:
 
 ```
-> make deps-protocol-muxing
-> go build -o multicodecs ./examples/protocol-multiplexing-with-multicodecs
+> make deps
+> go build -o multicodecs ./protocol-multiplexing-with-multicodecs
 ```
 
 ## Usage
