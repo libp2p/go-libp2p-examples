@@ -6,12 +6,12 @@ This example expects that you area already familiar with the [echo example](http
 
 ## Build
 
-Run from `multipro` directory
+From `go-libp2p-examples` base folder:
 
-```sh
-> go build
 ```
-
+> make deps
+> go build ./multipro
+```
 
 ## Usage
 
