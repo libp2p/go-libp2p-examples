@@ -10,11 +10,11 @@ In dial mode, the node will start up, connect to the given address, open a strea
 
 ## Build
 
-From `go-libp2p` base folder:
+From `go-libp2p-examples` base folder:
 
 ```
 > make deps
-> go build ./examples/echo
+> go build ./echo
 ```
 
 ## Usage
