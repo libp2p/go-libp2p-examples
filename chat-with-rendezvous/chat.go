@@ -9,13 +9,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/ipfs/go-cid"
-	"github.com/ipfs/go-ipfs-addr"
-	"github.com/libp2p/go-libp2p"
-	"github.com/libp2p/go-libp2p-kad-dht"
-	"github.com/libp2p/go-libp2p-net"
-	"github.com/libp2p/go-libp2p-peerstore"
-	"github.com/multiformats/go-multihash"
+	cid "github.com/ipfs/go-cid"
+	iaddr "github.com/ipfs/go-ipfs-addr"
+	libp2p "github.com/libp2p/go-libp2p"
+	dht "github.com/libp2p/go-libp2p-kad-dht"
+	inet "github.com/libp2p/go-libp2p-net"
+	pstore "github.com/libp2p/go-libp2p-peerstore"
+	mh "github.com/multiformats/go-multihash"
 )
 
 // IPFS bootstrap nodes. Used to find other peers in the network.
@@ -29,7 +29,7 @@ var bootstrapPeers = []string{
 
 var rendezvous = "meet me here"
 
-func handleStream(stream net.Stream) {
+func handleStream(stream inet.Stream) {
 	log.Println("Got a new stream!")
 
 	// Create a buffer stream for non blocking read and write.
@@ -73,7 +73,6 @@ func writeData(rw *bufio.ReadWriter) {
 }
 
 func main() {
-
 	help := flag.Bool("h", false, "Display Help")
 	rendezvousString := flag.String("r", rendezvous, "Unique string to identify group of nodes. Share this with your friends to let them connect with you")
 	flag.Parse()
@@ -98,17 +97,15 @@ func main() {
 	// This function is called when a peer initiate a connection and starts a stream with this peer.
 	host.SetStreamHandler("/chat/1.1.0", handleStream)
 
-	dht, err := dht.New(ctx, host)
+	kadDht, err := dht.New(ctx, host)
 	if err != nil {
 		panic(err)
 	}
 
 	// Let's connect to the bootstrap nodes first. They will tell us about the other nodes in the network.
-	for _, addr := range bootstrapPeers {
-
-		iaddr, _ := ipfsaddr.ParseString(addr)
-
-		peerinfo, _ := peerstore.InfoFromP2pAddr(iaddr.Multiaddr())
+	for _, peerAddr := range bootstrapPeers {
+		addr, _ := iaddr.ParseString(peerAddr)
+		peerinfo, _ := pstore.InfoFromP2pAddr(addr.Multiaddr())
 
 		if err := host.Connect(ctx, *peerinfo); err != nil {
 			fmt.Println(err)
@@ -119,13 +116,13 @@ func main() {
 
 	// We use a rendezvous point "meet me here" to announce our location.
 	// This is like telling your friends to meet you at the Eiffel Tower.
-	v1b := cid.V1Builder{Codec: cid.Raw, MhType: multihash.SHA2_256}
+	v1b := cid.V1Builder{Codec: cid.Raw, MhType: mh.SHA2_256}
 	rendezvousPoint, _ := v1b.Sum([]byte(*rendezvousString))
 
 	fmt.Println("announcing ourselves...")
 	tctx, cancel := context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
-	if err := dht.Provide(tctx, rendezvousPoint, true); err != nil {
+	if err := kadDht.Provide(tctx, rendezvousPoint, true); err != nil {
 		panic(err)
 	}
 
@@ -136,7 +133,7 @@ func main() {
 	fmt.Println("searching for other peers...")
 	tctx, cancel = context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
-	peers, err := dht.FindProviders(tctx, rendezvousPoint)
+	peers, err := kadDht.FindProviders(tctx, rendezvousPoint)
 	if err != nil {
 		panic(err)
 	}
@@ -147,7 +144,6 @@ func main() {
 	}
 
 	for _, p := range peers {
-
 		if p.ID == host.ID() || len(p.Addrs) == 0 {
 			// No sense connecting to ourselves or if addrs are not available
 			continue
