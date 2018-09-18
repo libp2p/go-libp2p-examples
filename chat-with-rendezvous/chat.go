@@ -95,7 +95,7 @@ func main() {
 	}
 
 	// Set a function as stream handler.
-	// This function  is called when a peer initiate a connection and starts a stream with this peer.
+	// This function is called when a peer initiate a connection and starts a stream with this peer.
 	host.SetStreamHandler("/chat/1.1.0", handleStream)
 
 	dht, err := dht.New(ctx, host)
@@ -119,7 +119,8 @@ func main() {
 
 	// We use a rendezvous point "meet me here" to announce our location.
 	// This is like telling your friends to meet you at the Eiffel Tower.
-	rendezvousPoint, _ := cid.NewPrefixV1(cid.Raw, multihash.SHA2_256).Sum([]byte(*rendezvousString))
+	v1b := cid.V1Builder{Codec: cid.Raw, MhType: multihash.SHA2_256}
+	rendezvousPoint, _ := v1b.Sum([]byte(*rendezvousString))
 
 	fmt.Println("announcing ourselves...")
 	tctx, cancel := context.WithTimeout(ctx, time.Second*10)
