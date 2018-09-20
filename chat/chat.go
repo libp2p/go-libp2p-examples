@@ -133,7 +133,7 @@ func main() {
 	sourcePort := flag.Int("sp", 0, "Source port number")
 	dest := flag.String("d", "", "Dest MultiAddr String")
 	help := flag.Bool("help", false, "Display Help")
-	debug := flag.Bool("debug", true, "Debug generated same node id on every execution.")
+	debug := flag.Bool("debug", false, "Debug generating the same node id on every execution.")
 
 	flag.Parse()
 
