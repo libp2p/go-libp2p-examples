@@ -45,5 +45,7 @@ This node's multiaddress:
 
 **NOTE: debug mode is enabled by default, debug mode will always generate same node id (on each node) on every execution. Disable debug using `--debug false` flag while running your executable.**
 
+**Note:** If you are looking for an implementation with peer discovery, [chat-with-rendezvous](../chat-with-rendezvous), supports peer discovery using a rendezvous point.
+
 ## Authors
 1. Abhishek Upperwal
