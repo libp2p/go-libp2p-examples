@@ -1,29 +1,29 @@
 /*
-*
-* The MIT License (MIT)
-*
-* Copyright (c) 2014 Juan Batiz-Benet
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-* THE SOFTWARE.
-*
-* This program demonstrate a simple chat application using p2p communication.
-*
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2014 Juan Batiz-Benet
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * This program demonstrate a simple chat application using p2p communication.
+ *
  */
 
 package main
@@ -46,7 +46,7 @@ import (
 	"github.com/libp2p/go-libp2p-net"
 	"github.com/libp2p/go-libp2p-peer"
 	"github.com/libp2p/go-libp2p-peerstore"
-	ma "github.com/multiformats/go-multiaddr"
+	"github.com/multiformats/go-multiaddr"
 )
 
 /*
@@ -58,11 +58,11 @@ import (
 func addAddrToPeerstore(h host.Host, addr string) peer.ID {
 	// The following code extracts target's the peer ID from the
 	// given multiaddress.
-	maddr, err := ma.NewMultiaddr(addr)
+	maddr, err := multiaddr.NewMultiaddr(addr)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	pid, err := maddr.ValueForProtocol(ma.P_P2P)
+	pid, err := maddr.ValueForProtocol(multiaddr.P_P2P)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -74,7 +74,7 @@ func addAddrToPeerstore(h host.Host, addr string) peer.ID {
 
 	// Decapsulate the /p2p/<peerID> part from the target
 	// /ip4/<a.b.c.d>/p2p/<peer> becomes /ip4/<a.b.c.d>
-	targetPeerAddr, _ := ma.NewMultiaddr("/p2p/" + pid)
+	targetPeerAddr, _ := multiaddr.NewMultiaddr("/p2p/" + pid)
 	targetAddr := maddr.Decapsulate(targetPeerAddr)
 
 	// We have a peer ID and a targetAddr so we add
@@ -162,7 +162,7 @@ func main() {
 	}
 
 	// 0.0.0.0 will listen on any interface device.
-	sourceMultiAddr, _ := ma.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", *sourcePort))
+	sourceMultiAddr, _ := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", *sourcePort))
 
 	// libp2p.New constructs a new libp2p Host.
 	// Other options can be added here.
@@ -185,7 +185,7 @@ func main() {
 		// Let's get the actual TCP port from our listen multiaddr, in case we're using 0 (default; random available port).
 		var port string
 		for _, la := range host.Network().ListenAddresses() {
-			if p, err := la.ValueForProtocol(ma.P_TCP); err == nil {
+			if p, err := la.ValueForProtocol(multiaddr.P_TCP); err == nil {
 				port = p
 				break
 			}
