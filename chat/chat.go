@@ -46,7 +46,7 @@ import (
 	"github.com/libp2p/go-libp2p-net"
 	"github.com/libp2p/go-libp2p-peer"
 	"github.com/libp2p/go-libp2p-peerstore"
-	"github.com/multiformats/go-multiaddr"
+	ma "github.com/multiformats/go-multiaddr"
 )
 
 /*
@@ -57,12 +57,12 @@ import (
  */
 func addAddrToPeerstore(h host.Host, addr string) peer.ID {
 	// The following code extracts target's the peer ID from the
-	// given multiaddress
-	ipfsaddr, err := multiaddr.NewMultiaddr(addr)
+	// given multiaddress.
+	maddr, err := ma.NewMultiaddr(addr)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	pid, err := ipfsaddr.ValueForProtocol(multiaddr.P_IPFS)
+	pid, err := maddr.ValueForProtocol(ma.P_P2P)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -72,11 +72,10 @@ func addAddrToPeerstore(h host.Host, addr string) peer.ID {
 		log.Fatalln(err)
 	}
 
-	// Decapsulate the /ipfs/<peerID> part from the target
-	// /ip4/<a.b.c.d>/ipfs/<peer> becomes /ip4/<a.b.c.d>
-	targetPeerAddr, _ := multiaddr.NewMultiaddr(
-		fmt.Sprintf("/ipfs/%s", peer.IDB58Encode(peerid)))
-	targetAddr := ipfsaddr.Decapsulate(targetPeerAddr)
+	// Decapsulate the /p2p/<peerID> part from the target
+	// /ip4/<a.b.c.d>/p2p/<peer> becomes /ip4/<a.b.c.d>
+	targetPeerAddr, _ := ma.NewMultiaddr("/p2p/" + pid)
+	targetAddr := maddr.Decapsulate(targetPeerAddr)
 
 	// We have a peer ID and a targetAddr so we add
 	// it to the peerstore so LibP2P knows how to contact it
@@ -163,7 +162,7 @@ func main() {
 	}
 
 	// 0.0.0.0 will listen on any interface device.
-	sourceMultiAddr, _ := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", *sourcePort))
+	sourceMultiAddr, _ := ma.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", *sourcePort))
 
 	// libp2p.New constructs a new libp2p Host.
 	// Other options can be added here.
@@ -186,7 +185,7 @@ func main() {
 		// Let's get the actual TCP port from our listen multiaddr, in case we're using 0 (default; random available port).
 		var port string
 		for _, la := range host.Network().ListenAddresses() {
-			if p, err := la.ValueForProtocol(multiaddr.P_TCP); err == nil {
+			if p, err := la.ValueForProtocol(ma.P_TCP); err == nil {
 				port = p
 				break
 			}
@@ -196,7 +195,7 @@ func main() {
 			panic("was not able to find actual local port")
 		}
 
-		fmt.Printf("Run './chat -d /ip4/127.0.0.1/tcp/%v/ipfs/%s' on another console.\n", port, host.ID().Pretty())
+		fmt.Printf("Run './chat -d /ip4/127.0.0.1/tcp/%v/p2p/%s' on another console.\n", port, host.ID().Pretty())
 		fmt.Println("You can replace 127.0.0.1 with public IP as well.")
 		fmt.Printf("\nWaiting for incoming connection\n\n")
 
