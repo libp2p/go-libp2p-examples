@@ -1,0 +1,57 @@
+{
+  "author": "rob",
+  "bugs": {},
+  "gx": {
+    "dvcsimport": "github.com/libp2p/go-libp2p-examples/chat-with-rendezvous"
+  },
+  "gxDependencies": [
+    {
+      "author": "whyrusleeping",
+      "hash": "QmVsVARb86uSe1qYouewFMNd2p2sp2NGWm1JGPReVDWchW",
+      "name": "go-libp2p",
+      "version": "6.0.13"
+    },
+    {
+      "author": "whyrusleeping",
+      "hash": "QmfDPh144WGBqRxZb1TGDHerbMnZATrHZggAPw7putNnBq",
+      "name": "go-libp2p-net",
+      "version": "3.0.10"
+    },
+    {
+      "author": "whyrusleeping",
+      "hash": "QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7",
+      "name": "go-cid",
+      "version": "0.9.0"
+    },
+    {
+      "author": "why",
+      "hash": "QmSzdvo9aPzLj4HXWTcgGAp8N84tZc8LbLmFZFwUb1dpWk",
+      "name": "go-ipfs-addr",
+      "version": "0.1.23"
+    },
+    {
+      "hash": "QmZVakpN44VAUxs9eXAuUGLFYTCGmSyqSy6hyEKfMv68ME",
+      "name": "go-libp2p-kad-dht",
+      "version": "4.4.2"
+    },
+    {
+      "author": "whyrusleeping",
+      "hash": "QmfAQMFpgDU2U4BXG64qVr8HSiictfWvkSBz7Y2oDj65st",
+      "name": "go-libp2p-peerstore",
+      "version": "2.0.1"
+    },
+    {
+      "author": "multiformats",
+      "hash": "QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8",
+      "name": "go-multihash",
+      "version": "1.0.8"
+    }
+  ],
+  "gxVersion": "0.12.1",
+  "language": "go",
+  "license": "",
+  "name": "chat-with-rendezvous",
+  "releaseCmd": "git commit -a -m \"gx publish $VERSION\"",
+  "version": "0.0.0"
+}
+
