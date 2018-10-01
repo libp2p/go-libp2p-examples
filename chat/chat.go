@@ -56,31 +56,18 @@ import (
 * @credit examples/http-proxy/proxy.go
  */
 func addAddrToPeerstore(h host.Host, addr string) peer.ID {
-	// The following code extracts target's the peer ID from the
-	// given multiaddress.
 	maddr, err := multiaddr.NewMultiaddr(addr)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	pid, err := maddr.ValueForProtocol(multiaddr.P_P2P)
+
+	info, err := peerstore.InfoFromP2pAddr(maddr)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	peerid, err := peer.IDB58Decode(pid)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	// Decapsulate the /p2p/<peerID> part from the target
-	// /ip4/<a.b.c.d>/p2p/<peer> becomes /ip4/<a.b.c.d>
-	targetPeerAddr, _ := multiaddr.NewMultiaddr("/p2p/" + pid)
-	targetAddr := maddr.Decapsulate(targetPeerAddr)
-
-	// We have a peer ID and a targetAddr so we add
-	// it to the peerstore so LibP2P knows how to contact it
-	h.Peerstore().AddAddr(peerid, targetAddr, peerstore.PermanentAddrTTL)
-	return peerid
+	h.Peerstore().AddAddrs(info.ID, info.Addrs, peerstore.PermanentAddrTTL)
+	return info.ID
 }
 
 func handleStream(s net.Stream) {
@@ -206,16 +193,27 @@ func main() {
 		for _, la := range host.Addrs() {
 			fmt.Printf(" - %v\n", la)
 		}
-
 		fmt.Println()
+
+		// Turn the destination into a multiaddr.
+		maddr, err := multiaddr.NewMultiaddr(*dest)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// Extract the peer ID from the multiaddr.
+		info, err := peerstore.InfoFromP2pAddr(maddr)
+		if err != nil {
+			log.Fatalln(err)
+		}
 
 		// Add the destination's peer multiaddress in the peerstore.
 		// This will be used during connection and stream creation by libp2p.
-		peerID := addAddrToPeerstore(host, *dest)
+		host.Peerstore().AddAddrs(info.ID, info.Addrs, peerstore.PermanentAddrTTL)
 
-		// Start a stream with the destination..
+		// Start a stream with the destination.
 		// Multiaddress of the destination peer is fetched from the peerstore using 'peerId'.
-		s, err := host.NewStream(context.Background(), peerID, "/chat/1.0.0")
+		s, err := host.NewStream(context.Background(), info.ID, "/chat/1.0.0")
 		if err != nil {
 			panic(err)
 		}
