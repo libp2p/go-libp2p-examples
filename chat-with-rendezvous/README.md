@@ -7,7 +7,7 @@ This program demonstrates a simple p2p chat application. You will learn how to d
 ```
 go get github.com/libp2p/go-libp2p-examples/chat-with-rendezvous
 
-go build chat.go
+go build *.go
 ```
 
 ## Usage
@@ -15,11 +15,12 @@ go build chat.go
 Use two different terminal windows to run
 
 ```
-./chat
+./chat -listen /ip4/127.0.0.1/tcp/6666
+./chat -listen /ip4/127.0.0.1/tcp/6668
 ```
 ## So how does it work?
 
-1. **Start a p2p host**
+1. **Configure a p2p host**
 ```go
 ctx := context.Background()
 
@@ -80,12 +81,21 @@ for _, addr := range bootstrapPeers {
 
 5. **Announce your presence using a rendezvous point.**
 
-[dht.Provide](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.Provide) makes this node announce that it can provide a value for the given key. Where a key in this case is ```rendezvousPoint```. Other peers will hit the same key to find other peers.
+[dht.Provide](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.Provide) makes this node announce that it can provide a value for the given key. Where a key in this case is ```rendezvousPoint```. Other peers will hit the same key to find other peers. Pulling the call into a function and using it in a goroutine allows to the first node to keep announcing until there are peers on the network to announce to.
 
 ```go
-if err := dht.Provide(tctx, rendezvousPoint, true); err != nil {
-    panic(err)
+func provide(dht *libp2pdht.IpfsDHT, rendezvousPoint cid.Cid) {
+	for {
+		timeoutCtx, cancel := context.WithTimeout(dht.Context(), 10*time.Second)
+		defer cancel()
+		if err := dht.Provide(timeoutCtx, rendezvousPoint, true); err == nil {
+			break
+		}
+		time.Sleep(5 * time.Second)
+	}
 }
+...
+go provide(dht, rendezvoudPoint)
 ```
 
 6. **Find peers nearby.**
@@ -93,7 +103,7 @@ if err := dht.Provide(tctx, rendezvousPoint, true); err != nil {
 [dht.FindProviders](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.FindProviders) will return all the peers who have announced their presence before.
 
 ```go
-peers, err := dht.FindProviders(tctx, rendezvousPoint)
+peers, err := dht.FindProviders(timeoutCtx, rendezvousPoint)
 ```
 
 **Note:** Although [dht.Provide](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.Provide) and [dht.FindProviders](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.FindProviders) works for a rendezvous peer discovery, this is not the right way of doing it. Libp2p is currently working on an actual rendezvous protocol ([libp2p/specs#56](https://github.com/libp2p/specs/pull/56)) which can be used for bootstrap purposes, real time peer discovery and application specific routing.
@@ -127,3 +137,4 @@ for _, p := range peers {
 
 ## Authors
 1. Abhishek Upperwal
+2. Mantas Vidutis
