@@ -23,8 +23,8 @@ import (
 )
 
 // makeBasicHost creates a LibP2P host with a random peer ID listening on the
-// given multiaddress. It will use secio if secio is true.
-func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error) {
+// given multiaddress. It won't encrypt the connection if insecure is true.
+func makeBasicHost(listenPort int, insecure bool, randseed int64) (host.Host, error) {
 
 	// If the seed is zero, use real cryptographic randomness. Otherwise, use a
 	// deterministic randomness source to make generated keys stay the same
@@ -48,7 +48,7 @@ func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error
 		libp2p.Identity(priv),
 	}
 
-	if !secio {
+	if insecure {
 		opts = append(opts, libp2p.NoSecurity)
 	}
 
@@ -65,8 +65,8 @@ func makeBasicHost(listenPort int, secio bool, randseed int64) (host.Host, error
 	addr := basicHost.Addrs()[0]
 	fullAddr := addr.Encapsulate(hostAddr)
 	log.Printf("I am %s\n", fullAddr)
-	if secio {
-		log.Printf("Now run \"./echo -l %d -d %s -secio\" on a different terminal\n", listenPort+1, fullAddr)
+	if insecure {
+		log.Printf("Now run \"./echo -l %d -d %s -insecure\" on a different terminal\n", listenPort+1, fullAddr)
 	} else {
 		log.Printf("Now run \"./echo -l %d -d %s\" on a different terminal\n", listenPort+1, fullAddr)
 	}
@@ -83,7 +83,7 @@ func main() {
 	// Parse options from the command line
 	listenF := flag.Int("l", 0, "wait for incoming connections")
 	target := flag.String("d", "", "target peer to dial")
-	secio := flag.Bool("secio", false, "enable secio")
+	insecure := flag.Bool("insecure", false, "use an unencrypted connection")
 	seed := flag.Int64("seed", 0, "set random seed for id generation")
 	flag.Parse()
 
@@ -92,7 +92,7 @@ func main() {
 	}
 
 	// Make a host that listens on the given multiaddress
-	ha, err := makeBasicHost(*listenF, *secio, *seed)
+	ha, err := makeBasicHost(*listenF, *insecure, *seed)
 	if err != nil {
 		log.Fatal(err)
 	}
