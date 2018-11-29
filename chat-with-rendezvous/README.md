@@ -81,21 +81,11 @@ for _, addr := range bootstrapPeers {
 
 5. **Announce your presence using a rendezvous point.**
 
-[dht.Provide](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.Provide) makes this node announce that it can provide a value for the given key. Where a key in this case is ```rendezvousPoint```. Other peers will hit the same key to find other peers. Pulling the call into a function and using it in a goroutine allows to the first node to keep announcing until there are peers on the network to announce to.
+[dht.Provide](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.Provide) makes this node announce that it can provide a value for the given key. Where a key in this case is ```rendezvousString```. Other peers will hit the same key to find other peers. 
 
 ```go
-func provide(dht *libp2pdht.IpfsDHT, rendezvousPoint cid.Cid) {
-	for {
-		timeoutCtx, cancel := context.WithTimeout(dht.Context(), 10*time.Second)
-		defer cancel()
-		if err := dht.Provide(timeoutCtx, rendezvousPoint, true); err == nil {
-			break
-		}
-		time.Sleep(5 * time.Second)
-	}
-}
-...
-go provide(dht, rendezvoudPoint)
+routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
+discovery.Advertise(ctx, routingDiscovery, config.RendezvousString)
 ```
 
 6. **Find peers nearby.**
@@ -103,36 +93,39 @@ go provide(dht, rendezvoudPoint)
 [dht.FindProviders](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.FindProviders) will return all the peers who have announced their presence before.
 
 ```go
-peers, err := dht.FindProviders(timeoutCtx, rendezvousPoint)
+peerChan, err := routingDiscovery.FindPeers(ctx, config.RendezvousString)
 ```
 
 **Note:** Although [dht.Provide](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.Provide) and [dht.FindProviders](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.FindProviders) works for a rendezvous peer discovery, this is not the right way of doing it. Libp2p is currently working on an actual rendezvous protocol ([libp2p/specs#56](https://github.com/libp2p/specs/pull/56)) which can be used for bootstrap purposes, real time peer discovery and application specific routing.
 
 7. **Open streams to peers found.**
 
-Finally we open stream to the peers we found.
+Finally we open stream to the peers we found, as we find them
 
 ```go
-for _, p := range peers {
+go func() {
+		for peer := range peerChan {
+			if peer.ID == host.ID() {
+				continue
+			}
+			fmt.Println("Found peer:", peer)
 
-    if p.ID == host.ID() || len(p.Addrs) == 0 {
-        // No sense connecting to ourselves or if addrs are not available
-        continue
-    }
+			fmt.Println("Connecting to:", peer)
+			stream, err := host.NewStream(ctx, peer.ID, protocol.ID(config.ProtocolID))
 
-    stream, err := host.NewStream(ctx, p.ID, "/chat/1.1.0")
+			if err != nil {
+				fmt.Println("Connection failed:", err)
+				continue
+			} else {
+				rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
 
-    if err != nil {
-        fmt.Println(err)
-    } else {
-        rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
+				go writeData(rw)
+				go readData(rw)
+			}
 
-        go writeData(rw)
-        go readData(rw)
-    }
-
-    fmt.Println("Connected to: ", p)
-}
+			fmt.Println("Connected to:", peer)
+		}
+	}()
 ```
 
 ## Authors

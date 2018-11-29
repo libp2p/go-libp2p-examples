@@ -5,23 +5,22 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/libp2p/go-libp2p-crypto"
-	"github.com/libp2p/go-libp2p-protocol"
-	"github.com/multiformats/go-multiaddr"
-	"log"
 	"os"
-	"time"
 
-	"github.com/ipfs/go-cid"
+	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p-discovery"
 	libp2pdht "github.com/libp2p/go-libp2p-kad-dht"
 	inet "github.com/libp2p/go-libp2p-net"
-	peerstore "github.com/libp2p/go-libp2p-peerstore"
-	"github.com/multiformats/go-multihash"
+	"github.com/libp2p/go-libp2p-peerstore"
+	"github.com/libp2p/go-libp2p-protocol"
+	"github.com/multiformats/go-multiaddr"
 )
 
+var log = logging.Logger("rendezvous")
+
 func handleStream(stream inet.Stream) {
-	log.Println("Got a new stream!")
+	log.Info("Got a new stream!")
 
 	// Create a buffer stream for non blocking read and write.
 	rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
@@ -76,24 +75,6 @@ func writeData(rw *bufio.ReadWriter) {
 	}
 }
 
-// Useful only when we're the first node to launch in a peer network. Will
-// attempt to announce to the peer network that we're subscribed (and producing)
-// on the chat topic. This is necessary because, as the first peer, we have no
-// other peers to announce to when we start up. For peers joining an existing
-// network, this will succeed in its first iteration.
-func provide(dht *libp2pdht.IpfsDHT, rendezvousPoint cid.Cid) {
-	fmt.Println("Announcing ourselves...")
-	for {
-		timeoutCtx, cancel := context.WithTimeout(dht.Context(), 10*time.Second)
-		defer cancel()
-		if err := dht.Provide(timeoutCtx, rendezvousPoint, true); err == nil {
-			fmt.Println("Successfully announced!")
-			break
-		}
-		time.Sleep(5 * time.Second)
-	}
-}
-
 func main() {
 	help := flag.Bool("h", false, "Display Help")
 	config, err := ParseFlags()
@@ -111,17 +92,10 @@ func main() {
 	ctx := context.Background()
 
 	// Configure p2p host
-	privkey, _, err := crypto.GenerateKeyPair(crypto.RSA, 1024)
-	if err != nil {
-		panic(err)
-	}
-	transports := libp2p.DefaultTransports
 	addrs := make([]multiaddr.Multiaddr, len(config.ListenAddresses))
 	copy(addrs, config.ListenAddresses)
 
-	options := []libp2p.Option{transports, libp2p.DefaultMuxers}
-	options = append(options, libp2p.ListenAddrs(addrs...))
-	options = append(options, libp2p.Identity(privkey))
+	options := []libp2p.Option{libp2p.ListenAddrs(addrs...)}
 
 	// libp2p.New constructs a new libp2p Host.
 	// Other options can be added here.
@@ -129,6 +103,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Host created. We are:", host.ID())
 
 	// Set a function as stream handler.
 	// This function is called when a peer initiates a connection and starts a stream with this peer.
@@ -157,55 +132,48 @@ func main() {
 		if err := host.Connect(ctx, *peerinfo); err != nil {
 			fmt.Println(err)
 		} else {
-			fmt.Println("Connection established with bootstrap node: ", *peerinfo)
+			fmt.Println("Connection established with bootstrap node:", *peerinfo)
 		}
 	}
 
 	// We use a rendezvous point "meet me here" to announce our location.
 	// This is like telling your friends to meet you at the Eiffel Tower.
-	v1Builder := cid.V1Builder{Codec: cid.Raw, MhType: multihash.SHA2_256}
-	rendezvousPoint, _ := v1Builder.Sum([]byte(config.RendezvousString))
-	go provide(kademliaDHT, rendezvousPoint)
+	fmt.Println("Announcing ourselves...")
+	routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
+	discovery.Advertise(ctx, routingDiscovery, config.RendezvousString)
+	fmt.Println("Successfully announced!")
 
 	// Now, look for others who have announced
 	// This is like your friend telling you the location to meet you.
-	// 'FindProviders' will return 'PeerInfo' of all the peers which
-	// have 'Provide' or announced themselves previously.
 	fmt.Println("Searching for other peers...")
-	timeoutCtx, cancel := context.WithTimeout(ctx, time.Second*10)
-	defer cancel()
-	peers, err := kademliaDHT.FindProviders(timeoutCtx, rendezvousPoint)
+	peerChan, err := routingDiscovery.FindPeers(ctx, config.RendezvousString)
 	if err != nil {
-		cancel()
 		panic(err)
 	}
-	fmt.Printf("Found %d peers!\n", len(peers))
 
-	for _, p := range peers {
-		fmt.Println("Peer: ", p)
-	}
+	go func() {
+		for peer := range peerChan {
+			if peer.ID == host.ID() {
+				continue
+			}
+			fmt.Println("Found peer:", peer)
 
-	for _, p := range peers {
-		if p.ID == host.ID() || len(p.Addrs) == 0 {
-			// No sense connecting to ourselves or if addrs are not available
-			continue
+			fmt.Println("Connecting to:", peer)
+			stream, err := host.NewStream(ctx, peer.ID, protocol.ID(config.ProtocolID))
+
+			if err != nil {
+				fmt.Println("Connection failed:", err)
+				continue
+			} else {
+				rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
+
+				go writeData(rw)
+				go readData(rw)
+			}
+
+			fmt.Println("Connected to:", peer)
 		}
-
-		fmt.Println("Connecting to: ", p)
-		stream, err := host.NewStream(ctx, p.ID, protocol.ID(config.ProtocolID))
-
-		if err != nil {
-			fmt.Println("Connection failed: ", err)
-			continue
-		} else {
-			rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
-
-			go writeData(rw)
-			go readData(rw)
-		}
-
-		fmt.Println("Connected to: ", p)
-	}
+	}()
 
 	select {}
 }
