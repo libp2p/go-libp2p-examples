@@ -1,29 +1,29 @@
 /*
-*
-* The MIT License (MIT)
-*
-* Copyright (c) 2014 Juan Batiz-Benet
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-* THE SOFTWARE.
-*
-* This program demonstrate a simple chat application using p2p communication.
-*
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2014 Juan Batiz-Benet
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * This program demonstrate a simple chat application using p2p communication.
+ *
  */
 
 package main
@@ -56,32 +56,18 @@ import (
 * @credit examples/http-proxy/proxy.go
  */
 func addAddrToPeerstore(h host.Host, addr string) peer.ID {
-	// The following code extracts target's the peer ID from the
-	// given multiaddress
-	ipfsaddr, err := multiaddr.NewMultiaddr(addr)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	pid, err := ipfsaddr.ValueForProtocol(multiaddr.P_IPFS)
+	maddr, err := multiaddr.NewMultiaddr(addr)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	peerid, err := peer.IDB58Decode(pid)
+	info, err := peerstore.InfoFromP2pAddr(maddr)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// Decapsulate the /ipfs/<peerID> part from the target
-	// /ip4/<a.b.c.d>/ipfs/<peer> becomes /ip4/<a.b.c.d>
-	targetPeerAddr, _ := multiaddr.NewMultiaddr(
-		fmt.Sprintf("/ipfs/%s", peer.IDB58Encode(peerid)))
-	targetAddr := ipfsaddr.Decapsulate(targetPeerAddr)
-
-	// We have a peer ID and a targetAddr so we add
-	// it to the peerstore so LibP2P knows how to contact it
-	h.Peerstore().AddAddr(peerid, targetAddr, peerstore.PermanentAddrTTL)
-	return peerid
+	h.Peerstore().AddAddrs(info.ID, info.Addrs, peerstore.PermanentAddrTTL)
+	return info.ID
 }
 
 func handleStream(s net.Stream) {
@@ -129,39 +115,40 @@ func writeData(rw *bufio.ReadWriter) {
 }
 
 func main() {
-
 	sourcePort := flag.Int("sp", 0, "Source port number")
-	dest := flag.String("d", "", "Dest MultiAddr String")
-	help := flag.Bool("help", false, "Display Help")
-	debug := flag.Bool("debug", true, "Debug generated same node id on every execution.")
+	dest := flag.String("d", "", "Destination multiaddr string")
+	help := flag.Bool("help", false, "Display help")
+	debug := flag.Bool("debug", false, "Debug generates the same node ID on every execution")
 
 	flag.Parse()
 
 	if *help {
 		fmt.Printf("This program demonstrates a simple p2p chat application using libp2p\n\n")
-		fmt.Printf("Usage: Run './chat -sp <SOURCE_PORT>' where <SOURCE_PORT> can be any port number. Now run './chat -d <MULTIADDR>' where <MULTIADDR> is multiaddress of previous listener host.\n")
+		fmt.Println("Usage: Run './chat -sp <SOURCE_PORT>' where <SOURCE_PORT> can be any port number.")
+		fmt.Println("Now run './chat -d <MULTIADDR>' where <MULTIADDR> is multiaddress of previous listener host.")
 
 		os.Exit(0)
 	}
 
-	// If debug is enabled used constant random source else cryptographic randomness.
+	// If debug is enabled, use a constant random source to generate the peer ID. Only useful for debugging,
+	// off by default. Otherwise, it uses rand.Reader.
 	var r io.Reader
 	if *debug {
-		// Constant random source. This will always generate the same host ID on multiple execution.
-		// Don't do this in production code.
+		// Use the port number as the randomness source.
+		// This will always generate the same host ID on multiple executions, if the same port number is used.
+		// Never do this in production code.
 		r = mrand.New(mrand.NewSource(int64(*sourcePort)))
 	} else {
 		r = rand.Reader
 	}
 
-	// Creates a new RSA key pair for this host
+	// Creates a new RSA key pair for this host.
 	prvKey, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
-
 	if err != nil {
 		panic(err)
 	}
 
-	// 0.0.0.0 will listen on any interface device
+	// 0.0.0.0 will listen on any interface device.
 	sourceMultiAddr, _ := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", *sourcePort))
 
 	// libp2p.New constructs a new libp2p Host.
@@ -178,31 +165,55 @@ func main() {
 
 	if *dest == "" {
 		// Set a function as stream handler.
-		// This function  is called when a peer initiate a connection and starts a stream with this peer.
-		// Only applicable on the receiving side.
+		// This function is called when a peer connects, and starts a stream with this protocol.
+		// Only applies on the receiving side.
 		host.SetStreamHandler("/chat/1.0.0", handleStream)
 
-		fmt.Printf("Run './chat -d /ip4/127.0.0.1/tcp/%d/ipfs/%s' on another console.\n You can replace 127.0.0.1 with public IP as well.\n", *sourcePort, host.ID().Pretty())
+		// Let's get the actual TCP port from our listen multiaddr, in case we're using 0 (default; random available port).
+		var port string
+		for _, la := range host.Network().ListenAddresses() {
+			if p, err := la.ValueForProtocol(multiaddr.P_TCP); err == nil {
+				port = p
+				break
+			}
+		}
+
+		if port == "" {
+			panic("was not able to find actual local port")
+		}
+
+		fmt.Printf("Run './chat -d /ip4/127.0.0.1/tcp/%v/p2p/%s' on another console.\n", port, host.ID().Pretty())
+		fmt.Println("You can replace 127.0.0.1 with public IP as well.")
 		fmt.Printf("\nWaiting for incoming connection\n\n")
+
 		// Hang forever
 		<-make(chan struct{})
-
 	} else {
+		fmt.Println("This node's multiaddresses:")
+		for _, la := range host.Addrs() {
+			fmt.Printf(" - %v\n", la)
+		}
+		fmt.Println()
 
-		// Add destination peer multiaddress in the peerstore.
+		// Turn the destination into a multiaddr.
+		maddr, err := multiaddr.NewMultiaddr(*dest)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// Extract the peer ID from the multiaddr.
+		info, err := peerstore.InfoFromP2pAddr(maddr)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// Add the destination's peer multiaddress in the peerstore.
 		// This will be used during connection and stream creation by libp2p.
-		peerID := addAddrToPeerstore(host, *dest)
+		host.Peerstore().AddAddrs(info.ID, info.Addrs, peerstore.PermanentAddrTTL)
 
-		fmt.Println("This node's multiaddress: ")
-		// IP will be 0.0.0.0 (listen on any interface) and port will be 0 (choose one for me).
-		// Although this node will not listen for any connection. It will just initiate a connect with
-		// one of its peer and use that stream to communicate.
-		fmt.Printf("%s/ipfs/%s\n", sourceMultiAddr, host.ID().Pretty())
-
-		// Start a stream with peer with peer Id: 'peerId'.
+		// Start a stream with the destination.
 		// Multiaddress of the destination peer is fetched from the peerstore using 'peerId'.
-		s, err := host.NewStream(context.Background(), peerID, "/chat/1.0.0")
-
+		s, err := host.NewStream(context.Background(), info.ID, "/chat/1.0.0")
 		if err != nil {
 			panic(err)
 		}
@@ -216,6 +227,5 @@ func main() {
 
 		// Hang forever.
 		select {}
-
 	}
 }

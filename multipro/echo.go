@@ -9,8 +9,8 @@ import (
 	inet "github.com/libp2p/go-libp2p-net"
 
 	uuid "github.com/google/uuid"
-	"github.com/libp2p/go-libp2p-host"
 	pb "github.com/libp2p/go-libp2p-examples/multipro/pb"
+	"github.com/libp2p/go-libp2p-host"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 )
 
@@ -71,7 +71,7 @@ func (e *EchoProtocol) onEchoRequest(s inet.Stream) {
 	}
 
 	// add the signature to the message
-	resp.MessageData.Sign = string(signature)
+	resp.MessageData.Sign = signature
 
 	s, respErr := e.node.NewStream(context.Background(), s.Conn().RemotePeer(), echoResponse)
 	if respErr != nil {
@@ -136,7 +136,7 @@ func (e *EchoProtocol) Echo(host host.Host) bool {
 	}
 
 	// add the signature to the message
-	req.MessageData.Sign = string(signature)
+	req.MessageData.Sign = signature
 
 	s, err := e.node.NewStream(context.Background(), host.ID(), echoRequest)
 	if err != nil {

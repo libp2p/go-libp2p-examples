@@ -7,10 +7,10 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	crypto "github.com/libp2p/go-libp2p-crypto"
+	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
 	peer "github.com/libp2p/go-libp2p-peer"
-	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
 	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 )
 
@@ -40,7 +40,7 @@ func (n *Node) authenticateMessage(message proto.Message, data *p2p.MessageData)
 	// store a temp ref to signature and remove it from message data
 	// sign is a string to allow easy reset to zero-value (empty string)
 	sign := data.Sign
-	data.Sign = ""
+	data.Sign = nil
 
 	// marshall data without the signature to protobufs3 binary format
 	bin, err := proto.Marshal(message)

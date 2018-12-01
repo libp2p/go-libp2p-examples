@@ -6,23 +6,6 @@ This example expects that you area already familiar with the [echo example](http
 
 ## Build
 
-Install gx:
-```sh
-> go get -u github.com/whyrusleeping/gx
-
-```
-
-Run GX from the root libp2p source dir: 
-```sh
->gx install
-```
-
-Build libp2p:
-```sh
-> make deps
-> make
-```
-
 Run from `multipro` directory
 
 ```sh

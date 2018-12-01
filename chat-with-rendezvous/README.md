@@ -7,7 +7,7 @@ This program demonstrates a simple p2p chat application. You will learn how to d
 ```
 go get github.com/libp2p/go-libp2p-examples/chat-with-rendezvous
 
-go build chat.go
+go build *.go
 ```
 
 ## Usage
@@ -15,11 +15,12 @@ go build chat.go
 Use two different terminal windows to run
 
 ```
-./chat
+./chat -listen /ip4/127.0.0.1/tcp/6666
+./chat -listen /ip4/127.0.0.1/tcp/6668
 ```
 ## So how does it work?
 
-1. **Start a p2p host**
+1. **Configure a p2p host**
 ```go
 ctx := context.Background()
 
@@ -80,50 +81,55 @@ for _, addr := range bootstrapPeers {
 
 5. **Announce your presence using a rendezvous point.**
 
-[dht.Provide](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.Provide) makes this node announce that it can provide a value for the given key. Where a key in this case is ```rendezvousPoint```. Other peers will hit the same key to find other peers.
+[routingDiscovery.Advertise](https://godoc.org/github.com/libp2p/go-libp2p-discovery#RoutingDiscovery.Advertise) makes this node announce that it can provide a value for the given key. Where a key in this case is ```rendezvousString```. Other peers will hit the same key to find other peers. 
 
 ```go
-if err := dht.Provide(tctx, rendezvousPoint, true); err != nil {
-    panic(err)
-}
+routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
+discovery.Advertise(ctx, routingDiscovery, config.RendezvousString)
 ```
 
 6. **Find peers nearby.**
 
-[dht.FindProviders](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.FindProviders) will return all the peers who have announced their presence before.
+[routingDiscovery.FindPeers](https://godoc.org/github.com/libp2p/go-libp2p-discovery#RoutingDiscovery.FindPeers) will return a channel of peers who have announced their presence.
 
 ```go
-peers, err := dht.FindProviders(tctx, rendezvousPoint)
+peerChan, err := routingDiscovery.FindPeers(ctx, config.RendezvousString)
 ```
 
-**Note:** Although [dht.Provide](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.Provide) and [dht.FindProviders](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.FindProviders) works for a rendezvous peer discovery, this is not the right way of doing it. Libp2p is currently working on an actual rendezvous protocol ([libp2p/specs#56](https://github.com/libp2p/specs/pull/56)) which can be used for bootstrap purposes, real time peer discovery and application specific routing.
+The [discovery](https://godoc.org/github.com/libp2p/go-libp2p-discovery#pkg-index) package uses the DHT internally to [provide](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.Provide) and [findProviders](https://godoc.org/github.com/libp2p/go-libp2p-kad-dht#IpfsDHT.FindProviders).
+
+**Note:** Although [routingDiscovery.Advertise](https://godoc.org/github.com/libp2p/go-libp2p-discovery#RoutingDiscovery.Advertise) and [routingDiscovery.FindPeers](https://godoc.org/github.com/libp2p/go-libp2p-discovery#RoutingDiscovery.FindPeers) works for a rendezvous peer discovery, this is not the right way of doing it. Libp2p is currently working on an actual rendezvous protocol ([libp2p/specs#56](https://github.com/libp2p/specs/pull/56)) which can be used for bootstrap purposes, real time peer discovery and application specific routing.
 
 7. **Open streams to peers found.**
 
-Finally we open stream to the peers we found.
+Finally we open stream to the peers we found, as we find them
 
 ```go
-for _, p := range peers {
+go func() {
+		for peer := range peerChan {
+			if peer.ID == host.ID() {
+				continue
+			}
+			fmt.Println("Found peer:", peer)
 
-    if p.ID == host.ID() || len(p.Addrs) == 0 {
-        // No sense connecting to ourselves or if addrs are not available
-        continue
-    }
+			fmt.Println("Connecting to:", peer)
+			stream, err := host.NewStream(ctx, peer.ID, protocol.ID(config.ProtocolID))
 
-    stream, err := host.NewStream(ctx, p.ID, "/chat/1.1.0")
+			if err != nil {
+				fmt.Println("Connection failed:", err)
+				continue
+			} else {
+				rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
 
-    if err != nil {
-        fmt.Println(err)
-    } else {
-        rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
+				go writeData(rw)
+				go readData(rw)
+			}
 
-        go writeData(rw)
-        go readData(rw)
-    }
-
-    fmt.Println("Connected to: ", p)
-}
+			fmt.Println("Connected to:", peer)
+		}
+	}()
 ```
 
 ## Authors
 1. Abhishek Upperwal
+2. Mantas Vidutis
