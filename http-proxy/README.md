@@ -1,6 +1,6 @@
 # HTTP proxy service with libp2p
 
-This examples shows how to create a simple HTTP proxy service with libp2p:
+This example shows how to create a simple HTTP proxy service with libp2p:
 
 ```
                                                                                                     XXX
@@ -22,11 +22,12 @@ Note that this is a very simple approach to a proxy, and does not perform any he
 
 ## Build
 
-From `go-libp2p-examples` base folder:
+From the `go-libp2p-examples` directory run the following:
 
 ```
 > make deps
-> go build ./http-proxy
+> cd http-proxy/
+> go build
 ```
 
 ## Usage
@@ -40,7 +41,7 @@ libp2p-peer addresses:
 /ip4/127.0.0.1/tcp/12000/ipfs/QmddTrQXhA9AkCpXPTkcY7e22NK73TwkUms3a44DhTKJTD
 ```
 
-The run the local peer, indicating that it will need to forward http requests to the remote peer as follows:
+Then run the local peer, indicating that it will need to forward http requests to the remote peer as follows:
 
 ```
 > ./http-proxy -d /ip4/127.0.0.1/tcp/12000/ipfs/QmddTrQXhA9AkCpXPTkcY7e22NK73TwkUms3a44DhTKJTD
@@ -50,7 +51,7 @@ libp2p-peer addresses:
 proxy listening on  127.0.0.1:9900
 ```
 
-As you can see, the proxy prints the listening address `127.0.0.1:9900`. You can now use this address as proxy, for example with `curl`:
+As you can see, the proxy prints the listening address `127.0.0.1:9900`. You can now use this address as a proxy, for example with `curl`:
 
 ```
 > curl -x "127.0.0.1:9900" "http://ipfs.io/ipfs/QmfUX75pGRBRDnjeoMkQzuQczuCup2aYbeLxz5NzeSu9G6"
