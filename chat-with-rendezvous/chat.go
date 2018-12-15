@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-discovery"
@@ -127,15 +128,20 @@ func main() {
 
 	// Let's connect to the bootstrap nodes first. They will tell us about the
 	// other nodes in the network.
+	var wg sync.WaitGroup
 	for _, peerAddr := range config.BootstrapPeers {
 		peerinfo, _ := peerstore.InfoFromP2pAddr(peerAddr)
-
-		if err := host.Connect(ctx, *peerinfo); err != nil {
-			fmt.Println(err)
-		} else {
-			fmt.Println("Connection established with bootstrap node:", *peerinfo)
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if err := host.Connect(ctx, *peerinfo); err != nil {
+				log.Print(err)
+			} else {
+				log.Println("Connection established with bootstrap node:", *peerinfo)
+			}
+		}()
 	}
+	wg.Wait()
 
 	// We use a rendezvous point "meet me here" to announce our location.
 	// This is like telling your friends to meet you at the Eiffel Tower.
