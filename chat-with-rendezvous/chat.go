@@ -15,7 +15,7 @@ import (
 	inet "github.com/libp2p/go-libp2p-net"
 	"github.com/libp2p/go-libp2p-peerstore"
 	"github.com/libp2p/go-libp2p-protocol"
-	"github.com/multiformats/go-multiaddr"
+	multiaddr "github.com/multiformats/go-multiaddr"
 )
 
 func handleStream(stream inet.Stream) {
@@ -92,15 +92,11 @@ func main() {
 
 	ctx := context.Background()
 
-	// Configure p2p host
-	addrs := make([]multiaddr.Multiaddr, len(config.ListenAddresses))
-	copy(addrs, config.ListenAddresses)
-
-	options := []libp2p.Option{libp2p.ListenAddrs(addrs...)}
-
 	// libp2p.New constructs a new libp2p Host. Other options can be added
 	// here.
-	host, err := libp2p.New(ctx, options...)
+	host, err := libp2p.New(ctx,
+		libp2p.ListenAddrs([]multiaddr.Multiaddr(config.ListenAddresses)...),
+	)
 	if err != nil {
 		panic(err)
 	}
