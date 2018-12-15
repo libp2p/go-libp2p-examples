@@ -98,22 +98,22 @@ func main() {
 
 	options := []libp2p.Option{libp2p.ListenAddrs(addrs...)}
 
-	// libp2p.New constructs a new libp2p Host.
-	// Other options can be added here.
+	// libp2p.New constructs a new libp2p Host. Other options can be added
+	// here.
 	host, err := libp2p.New(ctx, options...)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("Host created. We are:", host.ID())
 
-	// Set a function as stream handler.
-	// This function is called when a peer initiates a connection and starts a stream with this peer.
+	// Set a function as stream handler. This function is called when a peer
+	// initiates a connection and starts a stream with this peer.
 	host.SetStreamHandler(protocol.ID(config.ProtocolID), handleStream)
 
-	// Start a DHT, for use in peer discovery. We can't just make a new DHT client
-	// because we want each peer to maintain its own local copy of the DHT, so
-	// that the bootstrapping node of the DHT can go down without inhibitting
-	// future peer discovery.
+	// Start a DHT, for use in peer discovery. We can't just make a new DHT
+	// client because we want each peer to maintain its own local copy of the
+	// DHT, so that the bootstrapping node of the DHT can go down without
+	// inhibiting future peer discovery.
 	kademliaDHT, err := libp2pdht.New(ctx, host)
 	if err != nil {
 		panic(err)
@@ -126,7 +126,8 @@ func main() {
 		panic(err)
 	}
 
-	// Let's connect to the bootstrap nodes first. They will tell us about the other nodes in the network.
+	// Let's connect to the bootstrap nodes first. They will tell us about the
+	// other nodes in the network.
 	for _, peerAddr := range config.BootstrapPeers {
 		peerinfo, _ := peerstore.InfoFromP2pAddr(peerAddr)
 
