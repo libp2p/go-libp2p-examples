@@ -5,9 +5,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
-	logging "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-discovery"
 	libp2pdht "github.com/libp2p/go-libp2p-kad-dht"
@@ -17,10 +17,8 @@ import (
 	"github.com/multiformats/go-multiaddr"
 )
 
-var log = logging.Logger("rendezvous")
-
 func handleStream(stream inet.Stream) {
-	log.Info("Got a new stream!")
+	log.Print("Got a new stream!")
 
 	// Create a buffer stream for non blocking read and write.
 	rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
@@ -76,6 +74,7 @@ func writeData(rw *bufio.ReadWriter) {
 }
 
 func main() {
+	log.SetFlags(log.Flags() | log.Ltime)
 	help := flag.Bool("h", false, "Display Help")
 	config, err := ParseFlags()
 	if err != nil {
@@ -104,7 +103,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Host created. We are:", host.ID())
+	log.Println("Host created. We are:", host.ID())
 
 	// Set a function as stream handler. This function is called when a peer
 	// initiates a connection and starts a stream with this peer.
@@ -121,7 +120,7 @@ func main() {
 
 	// Bootstrap the DHT. In the default configuration, this spawns a Background
 	// thread that will refresh the peer table every five minutes.
-	fmt.Println("Bootstrapping the DHT")
+	log.Print("Bootstrapping the DHT")
 	if err = kademliaDHT.Bootstrap(ctx); err != nil {
 		panic(err)
 	}
@@ -140,14 +139,14 @@ func main() {
 
 	// We use a rendezvous point "meet me here" to announce our location.
 	// This is like telling your friends to meet you at the Eiffel Tower.
-	fmt.Println("Announcing ourselves...")
+	log.Print("Announcing ourselves...")
 	routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
 	discovery.Advertise(ctx, routingDiscovery, config.RendezvousString)
-	fmt.Println("Successfully announced!")
+	log.Println("Successfully announced!")
 
 	// Now, look for others who have announced
 	// This is like your friend telling you the location to meet you.
-	fmt.Println("Searching for other peers...")
+	log.Println("Searching for other peers...")
 	peerChan, err := routingDiscovery.FindPeers(ctx, config.RendezvousString)
 	if err != nil {
 		panic(err)
