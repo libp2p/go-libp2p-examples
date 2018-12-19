@@ -18,15 +18,15 @@ This examples shows how to create a simple HTTP proxy service with libp2p:
 
 In order to proxy an HTTP request, we create a local peer which listens on `localhost:9900`. HTTP requests performed to that address are tunneled via a libp2p stream to a remote peer, which then performs the HTTP requests and sends the response back to the local peer, which relays it to the user.
 
-Note that this is a very simple approach to a proxy, and does not perform any header management, nor supports HTTPS. The `proxy.go` code is thoroughly commeted, detailing what is happening in every step.
+Note that this is a very simple approach to a proxy, and does not perform any header management, nor supports HTTPS. The `proxy.go` code is thoroughly commented, detailing what is happening in every step.
 
 ## Build
 
-From `go-libp2p` base folder:
+From `go-libp2p-examples` base folder:
 
 ```
 > make deps
-> go build ./examples/http-proxy
+> go build ./http-proxy
 ```
 
 ## Usage
