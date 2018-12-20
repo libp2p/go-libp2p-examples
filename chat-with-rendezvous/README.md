@@ -1,13 +1,15 @@
-# p2p chat app with libp2p [support peer discovery]
+# p2p chat app with libp2p [with peer discovery]
 
-This program demonstrates a simple p2p chat application. You will learn how to discover a peer in the network (using kad-dht), connect to it and open a chat stream. 
+This program demonstrates a simple p2p chat application. You will learn how to discover a peer in the network (using kad-dht), connect to it and open a chat stream.
 
-## How to build this example?
+## Build
+
+From the `go-libp2p-examples` directory run the following:
 
 ```
-go get github.com/libp2p/go-libp2p-examples/chat-with-rendezvous
-
-go build *.go
+> make deps
+> cd chat-with-rendezvous/
+> go build -o chat
 ```
 
 ## Usage
@@ -28,17 +30,17 @@ ctx := context.Background()
 // Other options can be added here.
 host, err := libp2p.New(ctx)
 ```
-[libp2p.New](https://godoc.org/github.com/libp2p/go-libp2p#New) is the constructor for libp2p node. It creates a host with given configuration. Right now, all the options are default, documented [here](https://godoc.org/github.com/libp2p/go-libp2p#New)
+[libp2p.New](https://godoc.org/github.com/libp2p/go-libp2p#New) is the constructor for a libp2p node. It creates a host with the given configuration. Right now, all the options are default, documented [here](https://godoc.org/github.com/libp2p/go-libp2p#New)
 
 2. **Set a default handler function for incoming connections.**
 
-This function is called on the local peer when a remote peer initiate a connection and starts a stream with the local peer.
+This function is called on the local peer when a remote peer initiates a connection and starts a stream with the local peer.
 ```go
 // Set a function as stream handler.
 host.SetStreamHandler("/chat/1.1.0", handleStream)
 ```
 
-```handleStream``` is executed for each new stream incoming to the local peer. ```stream``` is used to exchange data between local and remote peer. This example uses non blocking functions for reading and writing from this stream.
+```handleStream``` is executed for each new incoming stream to the local peer. ```stream``` is used to exchange data between the local and remote peers. This example uses non blocking functions for reading and writing from this stream.
 
 ```go
 func handleStream(stream net.Stream) {
@@ -81,14 +83,14 @@ for _, addr := range bootstrapPeers {
 
 5. **Announce your presence using a rendezvous point.**
 
-[routingDiscovery.Advertise](https://godoc.org/github.com/libp2p/go-libp2p-discovery#RoutingDiscovery.Advertise) makes this node announce that it can provide a value for the given key. Where a key in this case is ```rendezvousString```. Other peers will hit the same key to find other peers. 
+[routingDiscovery.Advertise](https://godoc.org/github.com/libp2p/go-libp2p-discovery#RoutingDiscovery.Advertise) makes this node announce that it can provide a value for the given key. Where a key in this case is ```rendezvousString```. Other peers will hit the same key to find other peers.
 
 ```go
 routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
 discovery.Advertise(ctx, routingDiscovery, config.RendezvousString)
 ```
 
-6. **Find peers nearby.**
+6. **Find nearby peers.**
 
 [routingDiscovery.FindPeers](https://godoc.org/github.com/libp2p/go-libp2p-discovery#RoutingDiscovery.FindPeers) will return a channel of peers who have announced their presence.
 
@@ -100,9 +102,9 @@ The [discovery](https://godoc.org/github.com/libp2p/go-libp2p-discovery#pkg-inde
 
 **Note:** Although [routingDiscovery.Advertise](https://godoc.org/github.com/libp2p/go-libp2p-discovery#RoutingDiscovery.Advertise) and [routingDiscovery.FindPeers](https://godoc.org/github.com/libp2p/go-libp2p-discovery#RoutingDiscovery.FindPeers) works for a rendezvous peer discovery, this is not the right way of doing it. Libp2p is currently working on an actual rendezvous protocol ([libp2p/specs#56](https://github.com/libp2p/specs/pull/56)) which can be used for bootstrap purposes, real time peer discovery and application specific routing.
 
-7. **Open streams to peers found.**
+7. **Open streams to newly discovered peers.**
 
-Finally we open stream to the peers we found, as we find them
+Finally we open streams to the newly discovered peers.
 
 ```go
 go func() {

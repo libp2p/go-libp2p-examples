@@ -10,11 +10,12 @@ In dial mode, the node will start up, connect to the given address, open a strea
 
 ## Build
 
-From `go-libp2p-examples` base folder:
+From the `go-libp2p-examples` directory run the following:
 
 ```
 > make deps
-> go build ./echo
+> cd echo/
+> go build
 ```
 
 ## Usage
@@ -44,9 +45,9 @@ In order to create the swarm (and a `basichost`), the example needs:
 
 - An [ipfs-procotol ID](https://godoc.org/github.com/libp2p/go-libp2p-peer#ID) like `QmNtX1cvrm2K6mQmMEaMxAuB4rTexhd87vpYVot4sEZzxc`. The example autogenerates a key pair on every run and uses an ID extracted from the public key (the hash of the public key). When using `-secio`, it uses the key pair to encrypt communications (otherwise, it leaves the connections unencrypted).
 - A [Multiaddress](https://godoc.org/github.com/multiformats/go-multiaddr), which indicates how to reach this peer. There can be several of them (using different protocols or locations for example). Example: `/ip4/127.0.0.1/tcp/1234`.
-- A [go-libp2p-peerstore](https://godoc.org/github.com/libp2p/go-libp2p-peerstore), which is used as a address book which matches node IDs to the multiaddresses through which they can be contacted. This peerstore gets autopopulated when manually opening a connection (with [`Connect()`](https://godoc.org/github.com/libp2p/go-libp2p/p2p/host/basic#BasicHost.Connect). Alternatively, we can manually [`AddAddr()`](https://godoc.org/github.com/libp2p/go-libp2p-peerstore#AddrManager.AddAddr) as in the example.
+- A [go-libp2p-peerstore](https://godoc.org/github.com/libp2p/go-libp2p-peerstore), which is used as an address book which matches node IDs to the multiaddresses through which they can be contacted. This peerstore gets autopopulated when manually opening a connection (with [`Connect()`](https://godoc.org/github.com/libp2p/go-libp2p/p2p/host/basic#BasicHost.Connect). Alternatively, we can manually [`AddAddr()`](https://godoc.org/github.com/libp2p/go-libp2p-peerstore#AddrManager.AddAddr) as in the example.
 
-A `basichost` can now open streams (bi-directional channel between to peers) using [NewStream](https://godoc.org/github.com/libp2p/go-libp2p/p2p/host/basic#BasicHost.NewStream) and use them to send and receive data tagged with a `Protocol.ID` (a string). The host can also listen for incoming connections for a given
+A `basichost` can now open streams (bi-directional channel between two peers) using [NewStream](https://godoc.org/github.com/libp2p/go-libp2p/p2p/host/basic#BasicHost.NewStream) and use them to send and receive data tagged with a `Protocol.ID` (a string). The host can also listen for incoming connections for a given
 `Protocol` with [`SetStreamHandle()`](https://godoc.org/github.com/libp2p/go-libp2p/p2p/host/basic#BasicHost.SetStreamHandler).
 
 The example makes use of all of this to enable communication between a listener and a sender using protocol `/echo/1.0.0` (which could be any other thing).
