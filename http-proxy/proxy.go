@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	// We need to import libp2p's libraries that we use in this project.
-	// In order to work, these libraries need to be rewritten by gx-go.
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
 	peer "github.com/libp2p/go-libp2p-peer"
