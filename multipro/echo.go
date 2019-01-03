@@ -1,17 +1,16 @@
 package main
 
 import (
-	"bufio"
-	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 
 	inet "github.com/libp2p/go-libp2p-net"
 
+	"github.com/gogo/protobuf/proto"
 	uuid "github.com/google/uuid"
 	pb "github.com/libp2p/go-libp2p-examples/multipro/pb"
 	"github.com/libp2p/go-libp2p-host"
-	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 )
 
 // pattern: /protocol-name/request-or-response-message/version
@@ -37,10 +36,19 @@ func NewEchoProtocol(node *Node, done chan bool) *EchoProtocol {
 
 // remote peer requests handler
 func (e *EchoProtocol) onEchoRequest(s inet.Stream) {
+
 	// get request data
 	data := &pb.EchoRequest{}
-	decoder := protobufCodec.Multicodec(nil).Decoder(bufio.NewReader(s))
-	err := decoder.Decode(data)
+	buf, err := ioutil.ReadAll(s)
+	if err != nil {
+		s.Reset()
+		log.Println(err)
+		return
+	}
+	s.Close()
+
+	// unmarshal it
+	proto.Unmarshal(buf, data)
 	if err != nil {
 		log.Println(err)
 		return
@@ -73,13 +81,7 @@ func (e *EchoProtocol) onEchoRequest(s inet.Stream) {
 	// add the signature to the message
 	resp.MessageData.Sign = signature
 
-	s, respErr := e.node.NewStream(context.Background(), s.Conn().RemotePeer(), echoResponse)
-	if respErr != nil {
-		log.Println(respErr)
-		return
-	}
-
-	ok := e.node.sendProtoMessage(resp, s)
+	ok := e.node.sendProtoMessage(s.Conn().RemotePeer(), echoResponse, resp)
 
 	if ok {
 		log.Printf("%s: Echo response to %s sent.", s.Conn().LocalPeer().String(), s.Conn().RemotePeer().String())
@@ -88,10 +90,20 @@ func (e *EchoProtocol) onEchoRequest(s inet.Stream) {
 
 // remote echo response handler
 func (e *EchoProtocol) onEchoResponse(s inet.Stream) {
+
 	data := &pb.EchoResponse{}
-	decoder := protobufCodec.Multicodec(nil).Decoder(bufio.NewReader(s))
-	err := decoder.Decode(data)
+	buf, err := ioutil.ReadAll(s)
 	if err != nil {
+		s.Reset()
+		log.Println(err)
+		return
+	}
+	s.Close()
+
+	// unmarshal it
+	proto.Unmarshal(buf, data)
+	if err != nil {
+		log.Println(err)
 		return
 	}
 
@@ -138,13 +150,7 @@ func (e *EchoProtocol) Echo(host host.Host) bool {
 	// add the signature to the message
 	req.MessageData.Sign = signature
 
-	s, err := e.node.NewStream(context.Background(), host.ID(), echoRequest)
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-
-	ok := e.node.sendProtoMessage(req, s)
+	ok := e.node.sendProtoMessage(host.ID(), echoRequest, req)
 
 	if !ok {
 		return false

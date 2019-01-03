@@ -1,17 +1,18 @@
 package main
 
 import (
-	"bufio"
+	"context"
 	"log"
 	"time"
 
+	ggio "github.com/gogo/protobuf/io"
 	"github.com/gogo/protobuf/proto"
 	crypto "github.com/libp2p/go-libp2p-crypto"
 	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
 	host "github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
 	peer "github.com/libp2p/go-libp2p-peer"
-	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
+	"github.com/libp2p/go-libp2p-protocol"
 )
 
 // node client version
@@ -137,14 +138,25 @@ func (n *Node) NewMessageData(messageId string, gossip bool) *p2p.MessageData {
 // helper method - writes a protobuf go data object to a network stream
 // data: reference of protobuf go data object to send (not the object itself)
 // s: network stream to write the data to
-func (n *Node) sendProtoMessage(data proto.Message, s inet.Stream) bool {
-	writer := bufio.NewWriter(s)
-	enc := protobufCodec.Multicodec(nil).Encoder(writer)
-	err := enc.Encode(data)
+func (n *Node) sendProtoMessage(id peer.ID, p protocol.ID, data proto.Message) bool {
+	s, err := n.NewStream(context.Background(), id, p)
 	if err != nil {
 		log.Println(err)
 		return false
 	}
-	writer.Flush()
+	writer := ggio.NewFullWriter(s)
+	err = writer.WriteMsg(data)
+	if err != nil {
+		log.Println(err)
+		s.Reset()
+		return false
+	}
+	// FullClose closes the stream and waits for the other side to close their half.
+	err = inet.FullClose(s)
+	if err != nil {
+		log.Println(err)
+		s.Reset()
+		return false
+	}
 	return true
 }
