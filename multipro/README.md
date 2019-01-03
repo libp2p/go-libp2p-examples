@@ -1,8 +1,7 @@
-# Protocol Multiplexing using rpc-style multicodecs, protobufs with libp2p
+# Protocol Multiplexing using rpc-style protobufs with libp2p
 
-This example shows how to use multicodecs (i.e. protobufs) to encode and transmit information between libp2p hosts using libp2p Streams.
-Multicodecs present a common interface, making it very easy to swap the codec implementation if needed.
-This example expects that you area already familiar with the [echo example](https://github.com/libp2p/go-libp2p-examples/tree/master/echo).
+This example shows how to use protobufs to encode and transmit information between libp2p hosts using libp2p Streams.
+This example expects that you are already familiar with the [echo example](https://github.com/libp2p/go-libp2p-examples/tree/master/echo).
 
 ## Build
 

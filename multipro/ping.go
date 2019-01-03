@@ -1,16 +1,15 @@
 package main
 
 import (
-	"bufio"
-	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 
+	"github.com/gogo/protobuf/proto"
 	uuid "github.com/google/uuid"
 	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
 	"github.com/libp2p/go-libp2p-host"
 	inet "github.com/libp2p/go-libp2p-net"
-	protobufCodec "github.com/multiformats/go-multicodec/protobuf"
 )
 
 // pattern: /protocol-name/request-or-response-message/version
@@ -36,8 +35,16 @@ func (p *PingProtocol) onPingRequest(s inet.Stream) {
 
 	// get request data
 	data := &p2p.PingRequest{}
-	decoder := protobufCodec.Multicodec(nil).Decoder(bufio.NewReader(s))
-	err := decoder.Decode(data)
+	buf, err := ioutil.ReadAll(s)
+	if err != nil {
+		s.Reset()
+		log.Println(err)
+		return
+	}
+	s.Close()
+
+	// unmarshal it
+	proto.Unmarshal(buf, data)
 	if err != nil {
 		log.Println(err)
 		return
@@ -69,13 +76,7 @@ func (p *PingProtocol) onPingRequest(s inet.Stream) {
 	resp.MessageData.Sign = signature
 
 	// send the response
-	s, respErr := p.node.NewStream(context.Background(), s.Conn().RemotePeer(), pingResponse)
-	if respErr != nil {
-		log.Println(respErr)
-		return
-	}
-
-	ok := p.node.sendProtoMessage(resp, s)
+	ok := p.node.sendProtoMessage(s.Conn().RemotePeer(), pingResponse, resp)
 
 	if ok {
 		log.Printf("%s: Ping response to %s sent.", s.Conn().LocalPeer().String(), s.Conn().RemotePeer().String())
@@ -85,9 +86,18 @@ func (p *PingProtocol) onPingRequest(s inet.Stream) {
 // remote ping response handler
 func (p *PingProtocol) onPingResponse(s inet.Stream) {
 	data := &p2p.PingResponse{}
-	decoder := protobufCodec.Multicodec(nil).Decoder(bufio.NewReader(s))
-	err := decoder.Decode(data)
+	buf, err := ioutil.ReadAll(s)
 	if err != nil {
+		s.Reset()
+		log.Println(err)
+		return
+	}
+	s.Close()
+
+	// unmarshal it
+	proto.Unmarshal(buf, data)
+	if err != nil {
+		log.Println(err)
 		return
 	}
 
@@ -129,14 +139,7 @@ func (p *PingProtocol) Ping(host host.Host) bool {
 	// add the signature to the message
 	req.MessageData.Sign = signature
 
-	s, err := p.node.NewStream(context.Background(), host.ID(), pingRequest)
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-
-	ok := p.node.sendProtoMessage(req, s)
-
+	ok := p.node.sendProtoMessage(host.ID(), pingRequest, req)
 	if !ok {
 		return false
 	}
