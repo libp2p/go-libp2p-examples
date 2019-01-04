@@ -26,6 +26,7 @@ require (
 	github.com/libp2p/go-flow-metrics v0.2.0 // indirect
 	github.com/libp2p/go-libp2p v6.0.29+incompatible
 	github.com/libp2p/go-libp2p-autonat v0.0.0-20181221182007-93b1787f76de // indirect
+	github.com/libp2p/go-libp2p-blankhost v0.3.15 // indirect
 	github.com/libp2p/go-libp2p-circuit v2.3.2+incompatible
 	github.com/libp2p/go-libp2p-crypto v2.0.1+incompatible
 	github.com/libp2p/go-libp2p-discovery v0.0.0-20181218190140-cc4105e21706
@@ -38,6 +39,7 @@ require (
 	github.com/libp2p/go-libp2p-metrics v2.1.7+incompatible // indirect
 	github.com/libp2p/go-libp2p-nat v0.8.8 // indirect
 	github.com/libp2p/go-libp2p-net v3.0.15+incompatible
+	github.com/libp2p/go-libp2p-netutil v0.4.12 // indirect
 	github.com/libp2p/go-libp2p-peer v2.4.0+incompatible
 	github.com/libp2p/go-libp2p-peerstore v2.0.6+incompatible
 	github.com/libp2p/go-libp2p-protocol v1.0.0
@@ -50,11 +52,12 @@ require (
 	github.com/libp2p/go-maddr-filter v1.1.10 // indirect
 	github.com/libp2p/go-mplex v0.2.30 // indirect
 	github.com/libp2p/go-msgio v0.0.6 // indirect
-	github.com/libp2p/go-reuseport v0.1.18 // indirect
+	github.com/libp2p/go-reuseport v0.1.19-0.20181228180933-f92c31f4b71e // indirect
 	github.com/libp2p/go-reuseport-transport v0.1.12-0.20181218180700-1e7f3dd82eba // indirect
 	github.com/libp2p/go-sockaddr v1.0.3 // indirect
 	github.com/libp2p/go-stream-muxer v3.0.1+incompatible // indirect
 	github.com/libp2p/go-tcp-transport v2.0.16+incompatible // indirect
+	github.com/libp2p/go-testutil v1.2.10 // indirect
 	github.com/libp2p/go-ws-transport v2.0.15+incompatible // indirect
 	github.com/mattn/go-colorable v0.0.9 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect

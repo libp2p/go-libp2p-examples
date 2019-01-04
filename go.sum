@@ -65,6 +65,8 @@ github.com/libp2p/go-libp2p v6.0.29+incompatible h1:5Ma1c9yDtuK5ek0rR8l1vIjAUU47
 github.com/libp2p/go-libp2p v6.0.29+incompatible/go.mod h1:CyUlFa6Mw04PkmMg8gBIlHUl8j3TrEiA6oFiF4SgD8w=
 github.com/libp2p/go-libp2p-autonat v0.0.0-20181221182007-93b1787f76de h1:8kgV23E91cxSNwV2+czpURB4UTtMIpW85BPcALh+wQs=
 github.com/libp2p/go-libp2p-autonat v0.0.0-20181221182007-93b1787f76de/go.mod h1:xTjIQDpwWGdQyxXHrQ53UDED6FWYN8LErC+7e3yONiY=
+github.com/libp2p/go-libp2p-blankhost v0.3.15 h1:hI8d0Piq1gkeDAYf1SVafUyaKny6e9MOrEIWnGQiOCE=
+github.com/libp2p/go-libp2p-blankhost v0.3.15/go.mod h1:v1Lnlzn2DFfVeAk2O19BnVm/OaoRlFZwSyq015ZT11I=
 github.com/libp2p/go-libp2p-circuit v2.3.2+incompatible h1:WDJeAL9hBPsqymApE4j2UGT4ScwX75PPdJIXqz8QuMc=
 github.com/libp2p/go-libp2p-circuit v2.3.2+incompatible/go.mod h1:DH3RV0Tb4cHZAdSsdNOitADXTqRiFZxJmSk7mMcCFN4=
 github.com/libp2p/go-libp2p-crypto v2.0.1+incompatible h1:JAnZYupeAsZI5UqX50N9MWAVNO5HIfkow249YcmuvVs=
@@ -89,6 +91,8 @@ github.com/libp2p/go-libp2p-nat v0.8.8 h1:WUu6PfYMrUmcXb8hdP5tT+hua7o5nYwRZmSm1/
 github.com/libp2p/go-libp2p-nat v0.8.8/go.mod h1:cA6+rN+EcOAzmSL3vQ53VxX/FfOL1WGeJUvZgqjm2eQ=
 github.com/libp2p/go-libp2p-net v3.0.15+incompatible h1:7GDYsyQSXpGxS4SVxBt+iw5nbDnmVJWBg1XLdrzHOlo=
 github.com/libp2p/go-libp2p-net v3.0.15+incompatible/go.mod h1:8W6Wx3AZbTRTe8zSMLoAmT3mGyau+w6kGIRk+Z+MZ7Q=
+github.com/libp2p/go-libp2p-netutil v0.4.12 h1:D2BDSMw7UNK2BBy3/vCmw13W0PTZY2e6eagD1P9jVoY=
+github.com/libp2p/go-libp2p-netutil v0.4.12/go.mod h1:lpxjq1x/eUtPYAZAtnC7dKWjQeTuYIYz2ZIPNDDBj3g=
 github.com/libp2p/go-libp2p-peer v2.4.0+incompatible h1:1THIuO/h7GuITklYS7RgGCyoVl8aP9XH4NcokcdhDZc=
 github.com/libp2p/go-libp2p-peer v2.4.0+incompatible/go.mod h1:fS2eFKRO1IomwBAf+SuE8P1XOT/AAiqSgVPNIFA7Jc0=
 github.com/libp2p/go-libp2p-peerstore v2.0.6+incompatible h1:Jip/IIApZv58SNgSZctjJkLJf1c/zvUgwszTa0ihZbI=
@@ -115,6 +119,8 @@ github.com/libp2p/go-msgio v0.0.6 h1:e8n/z4Z3AP9gmOITuJVLuD9Ok0ZOvjiNDsh1AAhd4EY
 github.com/libp2p/go-msgio v0.0.6/go.mod h1:u5M7EDois/gQxdPuEfNYQks5cAu9oxUGDU3dRkGping=
 github.com/libp2p/go-reuseport v0.1.18 h1:TKSaHPmImw12TLRD/9fBOIp/NAcgUjv6u3KP6XHdEJM=
 github.com/libp2p/go-reuseport v0.1.18/go.mod h1:UeLFiw50cCfyDHBpU0sXBR8ul1MO/m51mXpRO/SYjCE=
+github.com/libp2p/go-reuseport v0.1.19-0.20181228180933-f92c31f4b71e h1:7M/6Hn6kc6023TA9nXZ09IxzPYQT9H2p8e3LyBfeNy0=
+github.com/libp2p/go-reuseport v0.1.19-0.20181228180933-f92c31f4b71e/go.mod h1:UeLFiw50cCfyDHBpU0sXBR8ul1MO/m51mXpRO/SYjCE=
 github.com/libp2p/go-reuseport v0.2.0 h1:gF9stUz461IFSuL4Uba8tEUFSS5gSUWEke7WuTgjSaw=
 github.com/libp2p/go-reuseport v0.2.0/go.mod h1:ViUXkfLbcaqzYb7Yyi7ZP/n8nAezADhH9oLvj6TA83E=
 github.com/libp2p/go-reuseport-transport v0.1.11 h1:PGnM8cZsdizr/g7g9vcsZgku2tb48mAEPQ4G0cLI+ZI=
@@ -127,6 +133,8 @@ github.com/libp2p/go-stream-muxer v3.0.1+incompatible h1:w9q15DATxItvgKwr6/z+47A
 github.com/libp2p/go-stream-muxer v3.0.1+incompatible/go.mod h1:bAo8x7YkSpadMTbtTaxGVHWUQsR/l5MEaHbKaliuT14=
 github.com/libp2p/go-tcp-transport v2.0.16+incompatible h1:xw8BoJ47Ra17ZTn+IR3i2VkOtzRjDgP29Lpr5Y7XyTg=
 github.com/libp2p/go-tcp-transport v2.0.16+incompatible/go.mod h1:K6Zi9TkPvn5m/m0bktlJ6Fv9Vna2wvr/jiCtTRC7T8o=
+github.com/libp2p/go-testutil v1.2.10 h1:WvC9YIFDdUcnkY7Z82iACQHE+iJyGqxSPyvgpxIk82U=
+github.com/libp2p/go-testutil v1.2.10/go.mod h1:8FHCRBHdt9BibhKebrOqVTJyW4cOZc52bfrGmw7ja+4=
 github.com/libp2p/go-ws-transport v2.0.15+incompatible h1:hErErrrux0IX4kNl8QTskoBGWkMJ0KH+2o9Y63M4Iwo=
 github.com/libp2p/go-ws-transport v2.0.15+incompatible/go.mod h1:qx7Dcw4onTaVNI3iG6q3XOKwNQWnXYhNEHYmhgQmKKk=
 github.com/mattn/go-colorable v0.0.9 h1:UVL0vNpWh04HeJXV0KLcaT7r06gOH2l4OW6ddYRUIY4=
