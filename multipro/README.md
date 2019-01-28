@@ -2,7 +2,7 @@
 
 This example shows how to use multicodecs (i.e. protobufs) to encode and transmit information between libp2p hosts using libp2p Streams.
 Multicodecs present a common interface, making it very easy to swap the codec implementation if needed.
-This example expects that you area already familiar with the [echo example](https://github.com/libp2p/go-libp2p/tree/master/examples/echo).
+This example expects that you area already familiar with the [echo example](https://github.com/libp2p/go-libp2p-examples/tree/master/echo).
 
 ## Build
 
