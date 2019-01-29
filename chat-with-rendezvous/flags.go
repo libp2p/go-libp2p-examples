@@ -4,6 +4,7 @@ import (
 	"flag"
 	"strings"
 
+	dht "github.com/libp2p/go-libp2p-kad-dht"
 	maddr "github.com/multiformats/go-multiaddr"
 )
 
@@ -25,15 +26,6 @@ func (al *addrList) Set(value string) error {
 	}
 	*al = append(*al, addr)
 	return nil
-}
-
-// IPFS bootstrap nodes. Used to find other peers in the network.
-var defaultBootstrapAddrStrings = []string{
-	"/ip4/104.131.131.82/tcp/4001/ipfs/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
-	"/ip4/104.236.179.241/tcp/4001/ipfs/QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM",
-	"/ip4/104.236.76.40/tcp/4001/ipfs/QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64",
-	"/ip4/128.199.219.111/tcp/4001/ipfs/QmSoLSafTMBsPKadTEgaXctDQVcqN88CNLHXMkTNwMKPnu",
-	"/ip4/178.62.158.247/tcp/4001/ipfs/QmSoLer265NRgSp2LA3dPaeykiS1J6DifTC88f5uVQKNAd",
 }
 
 func StringsToAddrs(addrStrings []string) (maddrs []maddr.Multiaddr, err error) {
@@ -64,11 +56,7 @@ func ParseFlags() (Config, error) {
 	flag.Parse()
 
 	if len(config.BootstrapPeers) == 0 {
-		bootstrapPeerAddrs, err := StringsToAddrs(defaultBootstrapAddrStrings)
-		if err != nil {
-			return config, err
-		}
-		config.BootstrapPeers = bootstrapPeerAddrs
+		config.BootstrapPeers = dht.DefaultBootstrapPeers
 	}
 
 	return config, nil
