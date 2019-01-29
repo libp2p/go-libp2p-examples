@@ -40,7 +40,7 @@ require (
 	github.com/libp2p/go-libp2p-host v3.0.15+incompatible
 	github.com/libp2p/go-libp2p-interface-connmgr v0.0.21 // indirect
 	github.com/libp2p/go-libp2p-interface-pnet v3.0.0+incompatible // indirect
-	github.com/libp2p/go-libp2p-kad-dht v4.4.12+incompatible
+	github.com/libp2p/go-libp2p-kad-dht v4.4.13-0.20190129000003-bebd753a1d86+incompatible
 	github.com/libp2p/go-libp2p-kbucket v2.2.12+incompatible // indirect
 	github.com/libp2p/go-libp2p-loggables v1.1.24 // indirect
 	github.com/libp2p/go-libp2p-metrics v2.1.7+incompatible // indirect

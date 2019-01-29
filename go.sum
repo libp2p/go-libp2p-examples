@@ -103,8 +103,8 @@ github.com/libp2p/go-libp2p-interface-connmgr v0.0.21 h1:XJtqDLi860LtusR6mY2PCPG
 github.com/libp2p/go-libp2p-interface-connmgr v0.0.21/go.mod h1:2LbTwxMveREcmkOWo/s6MM7xDvSZbW8J8kYDF4Mj648=
 github.com/libp2p/go-libp2p-interface-pnet v3.0.0+incompatible h1:MNYpwR4opxOJGkDdlV4Vypd7aM6mlt76fad4m4KLk4k=
 github.com/libp2p/go-libp2p-interface-pnet v3.0.0+incompatible/go.mod h1:el9jHpQAXK5dnTpKA4yfCNBZXvrzdOU75zz+C6ryp3k=
-github.com/libp2p/go-libp2p-kad-dht v4.4.12+incompatible h1:l5SmsvVxRTFO2+3Wg/91b5ElAQ1fZD7Z40KsWOXgZq8=
-github.com/libp2p/go-libp2p-kad-dht v4.4.12+incompatible/go.mod h1:o7SLAgKvO96vfE0SrzjJfAdCbJjKRfRnbtyUIQg+rqg=
+github.com/libp2p/go-libp2p-kad-dht v4.4.13-0.20190129000003-bebd753a1d86+incompatible h1:OOqxNTrJrPl7eSTv6TnssFvI6hVeeTHHM+nTm64QSjs=
+github.com/libp2p/go-libp2p-kad-dht v4.4.13-0.20190129000003-bebd753a1d86+incompatible/go.mod h1:o7SLAgKvO96vfE0SrzjJfAdCbJjKRfRnbtyUIQg+rqg=
 github.com/libp2p/go-libp2p-kbucket v2.2.12+incompatible h1:iiUIxaHtRg09TvMfiCqCoqQsgDEOylz3Dvjb5q/juIw=
 github.com/libp2p/go-libp2p-kbucket v2.2.12+incompatible/go.mod h1:MTtm31eal94QTxVOWYTDZ6G1YOJRN2G3ESQHbaPytLk=
 github.com/libp2p/go-libp2p-loggables v1.1.24 h1:Uy59Z4AK53YZaswhlKwYM9tk/KOoQijpPliyl4TuAx4=
