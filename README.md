@@ -13,6 +13,7 @@ Let us know if you find any issue or if you want to contribute and add a new tut
 - [Multicodecs with protobufs](./multipro)
 - [P2P chat application](./chat)
 - [P2P chat application w/ rendezvous peer discovery](./chat-with-rendezvous)
+- [P2P chat application with peer discovery using mdns](./chat-with-mdns)
 
 ## Troubleshooting
 
