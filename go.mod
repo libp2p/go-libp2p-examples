@@ -6,19 +6,26 @@ require (
 	github.com/coreos/go-semver v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fd/go-nat v1.0.0 // indirect
+	github.com/go-check/check v0.0.0-20180628173108-788fd7840127 // indirect
 	github.com/gogo/protobuf v1.2.0
 	github.com/google/uuid v1.1.0
 	github.com/gorilla/websocket v1.4.0 // indirect
+	github.com/gxed/GoEndian v0.0.0-20160916112711-0f5c6873267e // indirect
+	github.com/gxed/eventfd v0.0.0-20160916113412-80a92cca79a8 // indirect
 	github.com/gxed/hashland v0.0.0-20180221191214-d9f6b97f8db2 // indirect
 	github.com/hashicorp/golang-lru v0.5.0 // indirect
 	github.com/ipfs/go-cid v0.9.0 // indirect
 	github.com/ipfs/go-datastore v3.2.0+incompatible
+	github.com/ipfs/go-detect-race v1.0.1 // indirect
 	github.com/ipfs/go-ipfs-util v1.2.8 // indirect
 	github.com/ipfs/go-log v1.5.7
 	github.com/ipfs/go-todocounter v1.0.1 // indirect
+	github.com/jbenet/go-cienv v0.0.0-20150120210510-1bb1476777ec // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
+	github.com/jbenet/go-randbuf v0.0.0-20160322125720-674640a50e6a // indirect
 	github.com/jbenet/go-temp-err-catcher v0.0.0-20150120210811-aac704a3f4f2 // indirect
 	github.com/jbenet/goprocess v0.0.0-20160826012719-b497e2f366b8 // indirect
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/libp2p/go-addr-util v2.0.7+incompatible // indirect
 	github.com/libp2p/go-buffer-pool v0.1.1 // indirect
 	github.com/libp2p/go-conn-security v0.1.15 // indirect
@@ -72,8 +79,9 @@ require (
 	github.com/multiformats/go-multicodec v0.1.6
 	github.com/multiformats/go-multihash v1.0.8 // indirect
 	github.com/multiformats/go-multistream v0.3.9 // indirect
+	github.com/onsi/ginkgo v1.7.0 // indirect
+	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/opentracing/opentracing-go v1.0.2 // indirect
-	github.com/pkg/errors v0.8.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72 // indirect
 	github.com/stretchr/testify v1.2.2 // indirect
@@ -90,5 +98,7 @@ require (
 	github.com/whyrusleeping/yamux v1.1.2 // indirect
 	golang.org/x/crypto v0.0.0-20180531191117-5ba7f6308246 // indirect
 	golang.org/x/net v0.0.0-20181220203305-927f97764cc3 // indirect
+	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
 	golang.org/x/sys v0.0.0-20190102155601-82a175fd1598 // indirect
+	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
