@@ -14,19 +14,24 @@ import (
 
 func main() {
 	// Create three libp2p hosts, enable relay client capabilities on all
-	// of them, but tell number 2 to relay connections for other peers
-	// (The ability to *use* a relay vs the ability to *be* a relay)
-	h1, err := libp2p.New(context.Background(), libp2p.EnableRelay())
+	// of them.
+
+	// Tell the host to monitor for relays.
+	h1, err := libp2p.New(context.Background(), libp2p.EnableRelay(circuit.OptDiscovery))
 	if err != nil {
 		panic(err)
 	}
 
+	// Tell the host to relay connections for other peers (The ability to *use*
+	// a relay vs the ability to *be* a relay)
 	h2, err := libp2p.New(context.Background(), libp2p.EnableRelay(circuit.OptHop))
 	if err != nil {
 		panic(err)
 	}
 
-	h3, err := libp2p.New(context.Background(), libp2p.EnableRelay())
+	// Zero out the listen addresses for the host, so it can only communicate
+	// via p2p-circuit for our example
+	h3, err := libp2p.New(context.Background(), libp2p.ListenAddrs(), libp2p.EnableRelay())
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +41,7 @@ func main() {
 		Addrs: h2.Addrs(),
 	}
 
-	// Connect both h1 and h3 to h2, but not to eachother
+	// Connect both h1 and h3 to h2, but not to each other
 	if err := h1.Connect(context.Background(), h2info); err != nil {
 		panic(err)
 	}
