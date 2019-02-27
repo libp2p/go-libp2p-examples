@@ -8,3 +8,4 @@ jobs:
     steps:
       - checkout
       - run: go test -v -race -bench . ./...
+      - run: GOARCH=386 go test github.com/libp2p/... || true
