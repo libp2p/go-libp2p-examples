@@ -30,5 +30,5 @@ $:~/go/src/github.com/libp2p/go-libp2p-examples/libp2p-host$ go build host.go
 To obtain a clean `$GOPATH` execute the following:
 ```
 > mkdir /tmp/libp2p-examples
-> export $GOPATH=/tmp/libp2p/examples
+> export GOPATH=/tmp/libp2p/examples
 ```
