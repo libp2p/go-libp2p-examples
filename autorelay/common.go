@@ -29,7 +29,7 @@ type Config struct {
 
 func parseFlags() (Config, error) {
 	config := Config{}
-	flag.Var(&config.RelayID, "relayID", "The addrInput of the relay node")
+	flag.Var(&config.RelayID, "relayID", "The peer ID of the relay node")
 	flag.StringVar(&config.RendezvousString, "rendezvous", "nat-node", "A string to advertise this node for discovery in the DHT")
 	flag.Parse()
 
