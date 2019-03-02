@@ -9,7 +9,6 @@ go:
 env:
   global:
     - GOTFLAGS="-race"
-    - IPFS_REUSEPORT=false
   matrix:
     - BUILD_DEPTYPE=gomod
 
@@ -26,7 +25,7 @@ cache:
   directories:
     - $GOPATH/src/gx
     - $GOPATH/pkg/mod
-    - /home/travis/.cache/go-build
+    - $HOME/.cache/go-build
 
 notifications:
   email: false
