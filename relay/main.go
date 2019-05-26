@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	libp2p "github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
+
 	circuit "github.com/libp2p/go-libp2p-circuit"
-	inet "github.com/libp2p/go-libp2p-net"
-	pstore "github.com/libp2p/go-libp2p-peerstore"
 	swarm "github.com/libp2p/go-libp2p-swarm"
 	ma "github.com/multiformats/go-multiaddr"
 )
@@ -36,7 +37,7 @@ func main() {
 		panic(err)
 	}
 
-	h2info := pstore.PeerInfo{
+	h2info := peer.AddrInfo{
 		ID:    h2.ID(),
 		Addrs: h2.Addrs(),
 	}
@@ -50,7 +51,7 @@ func main() {
 	}
 
 	// Now, to test things, let's set up a protocol handler on h3
-	h3.SetStreamHandler("/cats", func(s inet.Stream) {
+	h3.SetStreamHandler("/cats", func(s network.Stream) {
 		fmt.Println("Meow! It worked!")
 		s.Close()
 	})
@@ -75,7 +76,7 @@ func main() {
 	// to tell the dialer "no, its okay, let's try this again"
 	h1.Network().(*swarm.Swarm).Backoff().Clear(h3.ID())
 
-	h3relayInfo := pstore.PeerInfo{
+	h3relayInfo := peer.AddrInfo{
 		ID:    h3.ID(),
 		Addrs: []ma.Multiaddr{relayaddr},
 	}

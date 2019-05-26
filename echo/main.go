@@ -11,13 +11,14 @@ import (
 	"log"
 	mrand "math/rand"
 
+	"github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/peerstore"
+
 	golog "github.com/ipfs/go-log"
-	libp2p "github.com/libp2p/go-libp2p"
-	crypto "github.com/libp2p/go-libp2p-crypto"
-	host "github.com/libp2p/go-libp2p-host"
-	net "github.com/libp2p/go-libp2p-net"
-	peer "github.com/libp2p/go-libp2p-peer"
-	pstore "github.com/libp2p/go-libp2p-peerstore"
 	ma "github.com/multiformats/go-multiaddr"
 	gologging "github.com/whyrusleeping/go-logging"
 )
@@ -100,7 +101,7 @@ func main() {
 
 	// Set a stream handler on host A. /echo/1.0.0 is
 	// a user-defined protocol name.
-	ha.SetStreamHandler("/echo/1.0.0", func(s net.Stream) {
+	ha.SetStreamHandler("/echo/1.0.0", func(s network.Stream) {
 		log.Println("Got a new stream!")
 		if err := doEcho(s); err != nil {
 			log.Println(err)
@@ -141,7 +142,7 @@ func main() {
 
 	// We have a peer ID and a targetAddr so we add it to the peerstore
 	// so LibP2P knows how to contact it
-	ha.Peerstore().AddAddr(peerid, targetAddr, pstore.PermanentAddrTTL)
+	ha.Peerstore().AddAddr(peerid, targetAddr, peerstore.PermanentAddrTTL)
 
 	log.Println("opening stream")
 	// make a new stream from host B to host A
@@ -166,7 +167,7 @@ func main() {
 }
 
 // doEcho reads a line of data a stream and writes it back
-func doEcho(s net.Stream) error {
+func doEcho(s network.Stream) error {
 	buf := bufio.NewReader(s)
 	str, err := buf.ReadString('\n')
 	if err != nil {

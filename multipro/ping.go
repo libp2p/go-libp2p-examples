@@ -5,11 +5,12 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/gogo/protobuf/proto"
+	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/network"
+
+	proto "github.com/gogo/protobuf/proto"
 	uuid "github.com/google/uuid"
 	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
-	"github.com/libp2p/go-libp2p-host"
-	inet "github.com/libp2p/go-libp2p-net"
 )
 
 // pattern: /protocol-name/request-or-response-message/version
@@ -31,7 +32,7 @@ func NewPingProtocol(node *Node, done chan bool) *PingProtocol {
 }
 
 // remote peer requests handler
-func (p *PingProtocol) onPingRequest(s inet.Stream) {
+func (p *PingProtocol) onPingRequest(s network.Stream) {
 
 	// get request data
 	data := &p2p.PingRequest{}
@@ -84,7 +85,7 @@ func (p *PingProtocol) onPingRequest(s inet.Stream) {
 }
 
 // remote ping response handler
-func (p *PingProtocol) onPingResponse(s inet.Stream) {
+func (p *PingProtocol) onPingResponse(s network.Stream) {
 	data := &p2p.PingResponse{}
 	buf, err := ioutil.ReadAll(s)
 	if err != nil {

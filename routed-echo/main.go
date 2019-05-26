@@ -11,16 +11,17 @@ import (
 	"log"
 	mrand "math/rand"
 
+	"github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
+
 	ds "github.com/ipfs/go-datastore"
 	dsync "github.com/ipfs/go-datastore/sync"
 	golog "github.com/ipfs/go-log"
-	libp2p "github.com/libp2p/go-libp2p"
-	crypto "github.com/libp2p/go-libp2p-crypto"
-	host "github.com/libp2p/go-libp2p-host"
+
 	dht "github.com/libp2p/go-libp2p-kad-dht"
-	net "github.com/libp2p/go-libp2p-net"
-	peer "github.com/libp2p/go-libp2p-peer"
-	pstore "github.com/libp2p/go-libp2p-peerstore"
 	rhost "github.com/libp2p/go-libp2p/p2p/host/routed"
 	ma "github.com/multiformats/go-multiaddr"
 	gologging "github.com/whyrusleeping/go-logging"
@@ -29,7 +30,7 @@ import (
 // makeRoutedHost creates a LibP2P host with a random peer ID listening on the
 // given multiaddress. It will use secio if secio is true. It will bootstrap using the
 // provided PeerInfo
-func makeRoutedHost(listenPort int, randseed int64, bootstrapPeers []pstore.PeerInfo, globalFlag string) (host.Host, error) {
+func makeRoutedHost(listenPort int, randseed int64, bootstrapPeers []peer.AddrInfo, globalFlag string) (host.Host, error) {
 
 	// If the seed is zero, use real cryptographic randomness. Otherwise, use a
 	// deterministic randomness source to make generated keys stay the same
@@ -120,7 +121,7 @@ func main() {
 	}
 
 	// Make a host that listens on the given multiaddress
-	var bootstrapPeers []pstore.PeerInfo
+	var bootstrapPeers []peer.AddrInfo
 	var globalFlag string
 	if *global {
 		log.Println("using global bootstrap")
@@ -138,7 +139,7 @@ func main() {
 
 	// Set a stream handler on host A. /echo/1.0.0 is
 	// a user-defined protocol name.
-	ha.SetStreamHandler("/echo/1.0.0", func(s net.Stream) {
+	ha.SetStreamHandler("/echo/1.0.0", func(s network.Stream) {
 		log.Println("Got a new stream!")
 		if err := doEcho(s); err != nil {
 			log.Println(err)
@@ -159,7 +160,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// peerinfo := pstore.PeerInfo{ID: peerid}
+	// peerinfo := peer.AddrInfo{ID: peerid}
 	log.Println("opening stream")
 	// make a new stream from host B to host A
 	// it should be handled on host A by the handler we set above because
@@ -184,7 +185,7 @@ func main() {
 }
 
 // doEcho reads a line of data from a stream and writes it back
-func doEcho(s net.Stream) error {
+func doEcho(s network.Stream) error {
 	buf := bufio.NewReader(s)
 	str, err := buf.ReadString('\n')
 	if err != nil {

@@ -5,12 +5,12 @@ import (
 	"io/ioutil"
 	"log"
 
-	inet "github.com/libp2p/go-libp2p-net"
+	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/network"
 
 	"github.com/gogo/protobuf/proto"
 	uuid "github.com/google/uuid"
 	pb "github.com/libp2p/go-libp2p-examples/multipro/pb"
-	"github.com/libp2p/go-libp2p-host"
 )
 
 // pattern: /protocol-name/request-or-response-message/version
@@ -35,7 +35,7 @@ func NewEchoProtocol(node *Node, done chan bool) *EchoProtocol {
 }
 
 // remote peer requests handler
-func (e *EchoProtocol) onEchoRequest(s inet.Stream) {
+func (e *EchoProtocol) onEchoRequest(s network.Stream) {
 
 	// get request data
 	data := &pb.EchoRequest{}
@@ -89,7 +89,7 @@ func (e *EchoProtocol) onEchoRequest(s inet.Stream) {
 }
 
 // remote echo response handler
-func (e *EchoProtocol) onEchoResponse(s inet.Stream) {
+func (e *EchoProtocol) onEchoResponse(s network.Stream) {
 
 	data := &pb.EchoResponse{}
 	buf, err := ioutil.ReadAll(s)

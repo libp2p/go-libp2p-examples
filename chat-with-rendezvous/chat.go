@@ -8,20 +8,22 @@ import (
 	"os"
 	"sync"
 
-	"github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-discovery"
-	libp2pdht "github.com/libp2p/go-libp2p-kad-dht"
-	inet "github.com/libp2p/go-libp2p-net"
-	"github.com/libp2p/go-libp2p-peerstore"
-	"github.com/libp2p/go-libp2p-protocol"
+
+	dht "github.com/libp2p/go-libp2p-kad-dht"
 	multiaddr "github.com/multiformats/go-multiaddr"
 	logging "github.com/whyrusleeping/go-logging"
+
+	"github.com/ipfs/go-log"
 )
 
 var logger = log.Logger("rendezvous")
 
-func handleStream(stream inet.Stream) {
+func handleStream(stream network.Stream) {
 	logger.Info("Got a new stream!")
 
 	// Create a buffer stream for non blocking read and write.
@@ -115,7 +117,7 @@ func main() {
 	// client because we want each peer to maintain its own local copy of the
 	// DHT, so that the bootstrapping node of the DHT can go down without
 	// inhibiting future peer discovery.
-	kademliaDHT, err := libp2pdht.New(ctx, host)
+	kademliaDHT, err := dht.New(ctx, host)
 	if err != nil {
 		panic(err)
 	}
@@ -131,7 +133,7 @@ func main() {
 	// other nodes in the network.
 	var wg sync.WaitGroup
 	for _, peerAddr := range config.BootstrapPeers {
-		peerinfo, _ := peerstore.InfoFromP2pAddr(peerAddr)
+		peerinfo, _ := peer.AddrInfoFromP2pAddr(peerAddr)
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

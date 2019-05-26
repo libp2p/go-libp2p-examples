@@ -25,7 +25,6 @@
  * This program demonstrate a simple chat application using p2p communication.
  *
  */
-
 package main
 
 import (
@@ -40,13 +39,15 @@ import (
 	"os"
 
 	"github.com/libp2p/go-libp2p"
-	"github.com/libp2p/go-libp2p-crypto"
-	"github.com/libp2p/go-libp2p-net"
-	"github.com/libp2p/go-libp2p-peerstore"
+	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/peerstore"
+
 	"github.com/multiformats/go-multiaddr"
 )
 
-func handleStream(s net.Stream) {
+func handleStream(s network.Stream) {
 	log.Println("Got a new stream!")
 
 	// Create a buffer stream for non blocking read and write.
@@ -178,7 +179,7 @@ func main() {
 		}
 
 		// Extract the peer ID from the multiaddr.
-		info, err := peerstore.InfoFromP2pAddr(maddr)
+		info, err := peer.AddrInfoFromP2pAddr(maddr)
 		if err != nil {
 			log.Fatalln(err)
 		}
