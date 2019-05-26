@@ -4,22 +4,22 @@ import (
 	"context"
 	"time"
 
-	host "github.com/libp2p/go-libp2p-host"
-	pstore "github.com/libp2p/go-libp2p-peerstore"
+	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p/p2p/discovery"
 )
 
 type discoveryNotifee struct {
-	PeerChan chan pstore.PeerInfo
+	PeerChan chan peer.AddrInfo
 }
 
 //interface to be called when new  peer is found
-func (n *discoveryNotifee) HandlePeerFound(pi pstore.PeerInfo) {
+func (n *discoveryNotifee) HandlePeerFound(pi peer.AddrInfo) {
 	n.PeerChan <- pi
 }
 
 //Initialize the MDNS service
-func initMDNS(ctx context.Context, peerhost host.Host, rendezvous string) chan pstore.PeerInfo {
+func initMDNS(ctx context.Context, peerhost host.Host, rendezvous string) chan peer.AddrInfo {
 	// An hour might be a long long period in practical applications. But this is fine for us
 	ser, err := discovery.NewMdnsService(ctx, peerhost, time.Hour, rendezvous)
 	if err != nil {
@@ -28,7 +28,7 @@ func initMDNS(ctx context.Context, peerhost host.Host, rendezvous string) chan p
 
 	//register with service so that we get notified about peer discovery
 	n := &discoveryNotifee{}
-	n.PeerChan = make(chan pstore.PeerInfo)
+	n.PeerChan = make(chan peer.AddrInfo)
 
 	ser.RegisterNotifee(n)
 	return n.PeerChan

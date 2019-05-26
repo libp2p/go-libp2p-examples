@@ -11,14 +11,14 @@ import (
 	"strings"
 
 	// We need to import libp2p's libraries that we use in this project.
-	host "github.com/libp2p/go-libp2p-host"
-	inet "github.com/libp2p/go-libp2p-net"
-	peer "github.com/libp2p/go-libp2p-peer"
-	ps "github.com/libp2p/go-libp2p-peerstore"
+	"github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/peerstore"
+
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr-net"
-
-	libp2p "github.com/libp2p/go-libp2p"
 )
 
 // Protocol defines the libp2p protocol that we will use for the libp2p proxy
@@ -79,7 +79,7 @@ func NewProxyService(h host.Host, proxyAddr ma.Multiaddr, dest peer.ID) *ProxySe
 // to our protocol. The streams should contain an HTTP request which we need
 // to parse, make on behalf of the original node, and then write the response
 // on the stream, before closing it.
-func streamHandler(stream inet.Stream) {
+func streamHandler(stream network.Stream) {
 	// Remember to close the stream when we are done.
 	defer stream.Close()
 
@@ -219,7 +219,7 @@ func addAddrToPeerstore(h host.Host, addr string) peer.ID {
 
 	// We have a peer ID and a targetAddr so we add
 	// it to the peerstore so LibP2P knows how to contact it
-	h.Peerstore().AddAddr(peerid, targetAddr, ps.PermanentAddrTTL)
+	h.Peerstore().AddAddr(peerid, targetAddr, peerstore.PermanentAddrTTL)
 	return peerid
 }
 

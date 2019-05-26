@@ -5,14 +5,15 @@ import (
 	"log"
 	"time"
 
+	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/helpers"
+	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/protocol"
+
 	ggio "github.com/gogo/protobuf/io"
-	"github.com/gogo/protobuf/proto"
-	crypto "github.com/libp2p/go-libp2p-crypto"
+	proto "github.com/gogo/protobuf/proto"
 	p2p "github.com/libp2p/go-libp2p-examples/multipro/pb"
-	host "github.com/libp2p/go-libp2p-host"
-	inet "github.com/libp2p/go-libp2p-net"
-	peer "github.com/libp2p/go-libp2p-peer"
-	"github.com/libp2p/go-libp2p-protocol"
 )
 
 // node client version
@@ -152,7 +153,7 @@ func (n *Node) sendProtoMessage(id peer.ID, p protocol.ID, data proto.Message) b
 		return false
 	}
 	// FullClose closes the stream and waits for the other side to close their half.
-	err = inet.FullClose(s)
+	err = helpers.FullClose(s)
 	if err != nil {
 		log.Println(err)
 		s.Reset()

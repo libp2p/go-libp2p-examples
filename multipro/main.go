@@ -6,9 +6,10 @@ import (
 	"log"
 	"math/rand"
 
-	libp2p "github.com/libp2p/go-libp2p"
-	crypto "github.com/libp2p/go-libp2p-crypto"
-	ps "github.com/libp2p/go-libp2p-peerstore"
+	"github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/peerstore"
+
 	ma "github.com/multiformats/go-multiaddr"
 )
 
@@ -38,8 +39,8 @@ func main() {
 	// Make 2 hosts
 	h1 := makeRandomNode(port1, done)
 	h2 := makeRandomNode(port2, done)
-	h1.Peerstore().AddAddrs(h2.ID(), h2.Addrs(), ps.PermanentAddrTTL)
-	h2.Peerstore().AddAddrs(h1.ID(), h1.Addrs(), ps.PermanentAddrTTL)
+	h1.Peerstore().AddAddrs(h2.ID(), h2.Addrs(), peerstore.PermanentAddrTTL)
+	h2.Peerstore().AddAddrs(h1.ID(), h1.Addrs(), peerstore.PermanentAddrTTL)
 
 	log.Printf("This is a conversation between %s and %s\n", h1.ID(), h2.ID())
 

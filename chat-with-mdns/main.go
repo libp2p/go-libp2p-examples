@@ -9,13 +9,14 @@ import (
 	"os"
 
 	"github.com/libp2p/go-libp2p"
-	"github.com/libp2p/go-libp2p-crypto"
-	inet "github.com/libp2p/go-libp2p-net"
-	protocol "github.com/libp2p/go-libp2p-protocol"
+	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/protocol"
+
 	"github.com/multiformats/go-multiaddr"
 )
 
-func handleStream(stream inet.Stream) {
+func handleStream(stream network.Stream) {
 	fmt.Println("Got a new stream!")
 
 	// Create a buffer stream for non blocking read and write.
