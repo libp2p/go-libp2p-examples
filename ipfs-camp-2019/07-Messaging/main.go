@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/host"
@@ -16,10 +17,20 @@ import (
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	secio "github.com/libp2p/go-libp2p-secio"
 	yamux "github.com/libp2p/go-libp2p-yamux"
+	"github.com/libp2p/go-libp2p/p2p/discovery"
 	tcp "github.com/libp2p/go-tcp-transport"
 	ws "github.com/libp2p/go-ws-transport"
 	"github.com/multiformats/go-multiaddr"
 )
+
+type mdnsNotifee struct {
+	h   host.Host
+	ctx context.Context
+}
+
+func (m *mdnsNotifee) HandlePeerFound(pi peer.AddrInfo) {
+	m.h.Connect(m.ctx, pi)
+}
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
@@ -93,6 +104,12 @@ func main() {
 	}
 
 	fmt.Println("Connected to", targetInfo.ID)
+
+	mdns, err := discovery.NewMdnsService(ctx, host, time.Second*10, "")
+	if err != nil {
+		panic(err)
+	}
+	mdns.RegisterNotifee(&mdnsNotifee{h: host, ctx: ctx})
 
 	err = dht.Bootstrap(ctx)
 	if err != nil {
