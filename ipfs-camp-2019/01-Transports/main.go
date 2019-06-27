@@ -10,6 +10,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// TODO: add some libp2p.Transport options to this chain!
 	transports := libp2p.ChainOptions()
 
 	host, err := libp2p.New(ctx, transports)

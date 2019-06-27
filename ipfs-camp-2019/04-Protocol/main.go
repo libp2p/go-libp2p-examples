@@ -46,6 +46,8 @@ func main() {
 		panic(err)
 	}
 
+	// TODO: Register a stream handler for our protocol!
+
 	for _, addr := range host.Addrs() {
 		fmt.Println("Listening on", addr)
 	}
@@ -66,6 +68,9 @@ func main() {
 	}
 
 	fmt.Println("Connected to", targetInfo.ID)
+
+	// TODO: Implement a simple read loop to read user input and send messages
+	// to peers we are connected to that support our protocol.
 
 	host.Close()
 }

@@ -16,6 +16,8 @@ import (
 
 const chatProtocol = protocol.ID("/libp2p/chat/1.0.0")
 
+// TODO: Replace this handler with a function that handles message from a
+// pubsub Subscribe channel.
 func chatHandler(s network.Stream) {
 	data, err := ioutil.ReadAll(s)
 	if err != nil {
@@ -24,6 +26,8 @@ func chatHandler(s network.Stream) {
 	fmt.Println("Received:", string(data))
 }
 
+// TODO: Replace this with a send function that publishes the string messages
+// on our pubsub topic.
 func chatSend(msg string, s network.Stream) error {
 	fmt.Println("Sending:", msg)
 	w := bufio.NewWriter(s)

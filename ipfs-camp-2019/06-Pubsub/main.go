@@ -61,6 +61,8 @@ func main() {
 		panic(err)
 	}
 
+	// TODO: Replace our stream handler with a pubsub instance, and a handler
+	// to field incoming messages on our topic.
 	host.SetStreamHandler(chatProtocol, chatHandler)
 
 	for _, addr := range host.Addrs() {
