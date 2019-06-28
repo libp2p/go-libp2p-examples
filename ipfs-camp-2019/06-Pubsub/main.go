@@ -10,8 +10,10 @@ import (
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/routing"
+	disc "github.com/libp2p/go-libp2p-discovery"
 	kaddht "github.com/libp2p/go-libp2p-kad-dht"
 	mplex "github.com/libp2p/go-libp2p-mplex"
 	secio "github.com/libp2p/go-libp2p-secio"
@@ -28,7 +30,10 @@ type mdnsNotifee struct {
 }
 
 func (m *mdnsNotifee) HandlePeerFound(pi peer.AddrInfo) {
-	m.h.Connect(m.ctx, pi)
+	if m.h.Network().Connectedness(pi.ID) != network.Connected {
+		fmt.Printf("Found %s!\n", pi.ID.ShortString())
+		m.h.Connect(m.ctx, pi)
+	}
 }
 
 func main() {
@@ -92,20 +97,28 @@ func main() {
 
 	err = host.Connect(ctx, *targetInfo)
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "connecting to bootstrap: %s", err)
+	} else {
+		fmt.Println("Connected to", targetInfo.ID)
 	}
-
-	fmt.Println("Connected to", targetInfo.ID)
 
 	mdns, err := discovery.NewMdnsService(ctx, host, time.Second*10, "")
 	if err != nil {
 		panic(err)
 	}
-	mdns.RegisterNotifee(&mdnsNotifee{h: host, ctx: ctx})
+	notifee := &mdnsNotifee{h: host, ctx: ctx}
+	mdns.RegisterNotifee(notifee)
 
 	err = dht.Bootstrap(ctx)
 	if err != nil {
 		panic(err)
+	}
+
+	routingDiscovery := disc.NewRoutingDiscovery(dht)
+	disc.Advertise(ctx, routingDiscovery, string(chatProtocol))
+	peers, err := disc.FindPeers(ctx, routingDiscovery, string(chatProtocol))
+	for _, peer := range peers {
+		notifee.HandlePeerFound(peer)
 	}
 
 	donec := make(chan struct{}, 1)
