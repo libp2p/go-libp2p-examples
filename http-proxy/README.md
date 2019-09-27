@@ -54,6 +54,12 @@ proxy listening on  127.0.0.1:9900
 As you can see, the proxy prints the listening address `127.0.0.1:9900`. You can now use this address as a proxy, for example with `curl`:
 
 ```
-> curl -x "127.0.0.1:9900" "http://ipfs.io/ipfs/QmfUX75pGRBRDnjeoMkQzuQczuCup2aYbeLxz5NzeSu9G6"
-it works!
+> curl -x "127.0.0.1:9900" "http://ipfs.io/ipfs/Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z"
+Hello World!
+```
+
+For `https` URLs, you should specify the port without the `https` schema. The remote peer will resolve appropiatelly:
+```
+> curl -x "127.0.0.1:9900" "ipfs.io:443/ipfs/Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z"
+Hello World!
 ```

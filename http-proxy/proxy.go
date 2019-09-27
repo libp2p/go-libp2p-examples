@@ -102,8 +102,6 @@ func streamHandler(stream network.Stream) {
 	hp := strings.Split(req.Host, ":")
 	if len(hp) > 1 && hp[1] == "443" {
 		req.URL.Scheme = "https"
-	} else {
-		req.URL.Scheme = "http"
 	}
 	req.URL.Host = req.Host
 
@@ -213,8 +211,7 @@ func addAddrToPeerstore(h host.Host, addr string) peer.ID {
 
 	// Decapsulate the /ipfs/<peerID> part from the target
 	// /ip4/<a.b.c.d>/ipfs/<peer> becomes /ip4/<a.b.c.d>
-	targetPeerAddr, _ := ma.NewMultiaddr(
-		fmt.Sprintf("/ipfs/%s", peer.IDB58Encode(peerid)))
+	targetPeerAddr, _ := ma.NewMultiaddr(fmt.Sprintf("/ipfs/%s", pid))
 	targetAddr := ipfsaddr.Decapsulate(targetPeerAddr)
 
 	// We have a peer ID and a targetAddr so we add
