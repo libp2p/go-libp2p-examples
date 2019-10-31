@@ -1,9 +1,9 @@
 # p2p chat app with libp2p [with pubsub]
 
 - This program demonstrates a simple p2p chat application. 
-- it can work among at least 2 peers if the these peers are in the same network.
+- It can work among at least 2 peers if the these peers are in the same network.
 - Peers all subscribe to a topic `chat-with-pubsub` so that peers can chat.
-- This example is evolved from the [ipfs-camp-2019 example](https://github.com/libp2p/go-libp2p-examples/tree/master/ipfs-camp-2019/08-End) and [chat example](https://github.com/libp2p/go-libp2p-examples/tree/master/chat). Credit to authors of those two examples!
+- This example is evolved from the [ipfs-camp-2019 example](https://github.com/libp2p/go-libp2p-examples/tree/master/ipfs-camp-2019/08-End) and [chat example](https://github.com/libp2p/go-libp2p-examples/tree/master/chat). Credit to authors of these two examples!
 
 ## Build
 
