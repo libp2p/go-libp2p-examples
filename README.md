@@ -19,6 +19,8 @@ Let us know if you find any issue or if you want to contribute and add a new tut
 - [P2P chat application w/ rendezvous peer discovery](./chat-with-rendezvous)
 - [P2P chat application with peer discovery using mdns](./chat-with-mdns)
 
+For js-libp2p examples, check https://github.com/libp2p/js-libp2p/tree/master/examples
+
 ## Troubleshooting
 
 When building the examples ensure you have a clean `$GOPATH`. If you have checked out and built other `libp2p` repos then you may get errors similar to the one below when building the examples. Note that the use of the `gx` package manager **is not required** to run the examples or to use `libp2p`.
