@@ -5,7 +5,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/ipfs/go-datastore v0.0.5
 	github.com/ipfs/go-log v0.0.1
-	github.com/libp2p/go-libp2p v0.1.0
+	github.com/libp2p/go-libp2p v0.4.2
 	github.com/libp2p/go-libp2p-circuit v0.1.4
 	github.com/libp2p/go-libp2p-core v0.0.1
 	github.com/libp2p/go-libp2p-discovery v0.2.0
