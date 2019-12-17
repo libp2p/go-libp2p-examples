@@ -21,8 +21,8 @@ From `go-libp2p-examples` base folder:
 ```
 > ./routed-echo -l 10000
 2018/02/19 12:22:32 I can be reached at:
-2018/02/19 12:22:32 /ip4/127.0.0.1/tcp/10000/ipfs/QmfRY4vuKpU2tApACrbmYFn9xoeNzMQhLXg7nKnyvnzHeL
-2018/02/19 12:22:32 /ip4/192.168.1.203/tcp/10000/ipfs/QmfRY4vuKpU2tApACrbmYFn9xoeNzMQhLXg7nKnyvnzHeL
+2018/02/19 12:22:32 /ip4/127.0.0.1/tcp/10000/p2p/QmfRY4vuKpU2tApACrbmYFn9xoeNzMQhLXg7nKnyvnzHeL
+2018/02/19 12:22:32 /ip4/192.168.1.203/tcp/10000/p2p/QmfRY4vuKpU2tApACrbmYFn9xoeNzMQhLXg7nKnyvnzHeL
 2018/02/19 12:22:32 Now run "./routed-echo -l 10001 -d QmfRY4vuKpU2tApACrbmYFn9xoeNzMQhLXg7nKnyvnzHeL" on a different terminal
 2018/02/19 12:22:32 listening for connections
 ```
