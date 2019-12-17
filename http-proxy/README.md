@@ -38,22 +38,22 @@ First run the "remote" peer as follows. It will print a local peer address. If y
 > ./http-proxy
 Proxy server is ready
 libp2p-peer addresses:
-/ip4/127.0.0.1/tcp/12000/ipfs/QmddTrQXhA9AkCpXPTkcY7e22NK73TwkUms3a44DhTKJTD
+/ip4/127.0.0.1/tcp/12000/p2p/QmddTrQXhA9AkCpXPTkcY7e22NK73TwkUms3a44DhTKJTD
 ```
 
 Then run the local peer, indicating that it will need to forward http requests to the remote peer as follows:
 
 ```
-> ./http-proxy -d /ip4/127.0.0.1/tcp/12000/ipfs/QmddTrQXhA9AkCpXPTkcY7e22NK73TwkUms3a44DhTKJTD
+> ./http-proxy -d /ip4/127.0.0.1/tcp/12000/p2p/QmddTrQXhA9AkCpXPTkcY7e22NK73TwkUms3a44DhTKJTD
 Proxy server is ready
 libp2p-peer addresses:
-/ip4/127.0.0.1/tcp/12001/ipfs/Qmaa2AYTha1UqcFVX97p9R1UP7vbzDLY7bqWsZw1135QvN
+/ip4/127.0.0.1/tcp/12001/p2p/Qmaa2AYTha1UqcFVX97p9R1UP7vbzDLY7bqWsZw1135QvN
 proxy listening on  127.0.0.1:9900
 ```
 
 As you can see, the proxy prints the listening address `127.0.0.1:9900`. You can now use this address as a proxy, for example with `curl`:
 
 ```
-> curl -x "127.0.0.1:9900" "http://ipfs.io/ipfs/QmfUX75pGRBRDnjeoMkQzuQczuCup2aYbeLxz5NzeSu9G6"
+> curl -x "127.0.0.1:9900" "http://ipfs.io/p2p/QmfUX75pGRBRDnjeoMkQzuQczuCup2aYbeLxz5NzeSu9G6"
 it works!
 ```

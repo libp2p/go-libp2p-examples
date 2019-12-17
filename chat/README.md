@@ -24,7 +24,7 @@ On node 'B'
 
 ```
 > ./chat -sp 3001
-Run ./chat -d /ip4/127.0.0.1/tcp/3001/ipfs/QmdXGaeGiVA745XorV1jr11RHxB9z4fqykm6xCUPX1aTJo
+Run ./chat -d /ip4/127.0.0.1/tcp/3001/p2p/QmdXGaeGiVA745XorV1jr11RHxB9z4fqykm6xCUPX1aTJo
 
 2018/02/27 01:21:32 Got a new stream!
 > hi (received messages in green colour)
@@ -35,11 +35,11 @@ Run ./chat -d /ip4/127.0.0.1/tcp/3001/ipfs/QmdXGaeGiVA745XorV1jr11RHxB9z4fqykm6x
 On node 'A'. Replace 127.0.0.1 with <PUBLIC_IP> if node 'B' has one.
 
 ```
-> ./chat -d /ip4/127.0.0.1/tcp/3001/ipfs/QmdXGaeGiVA745XorV1jr11RHxB9z4fqykm6xCUPX1aTJo
-Run ./chat -d /ip4/127.0.0.1/tcp/3001/ipfs/QmdXGaeGiVA745XorV1jr11RHxB9z4fqykm6xCUPX1aTJo
+> ./chat -d /ip4/127.0.0.1/tcp/3001/p2p/QmdXGaeGiVA745XorV1jr11RHxB9z4fqykm6xCUPX1aTJo
+Run ./chat -d /ip4/127.0.0.1/tcp/3001/p2p/QmdXGaeGiVA745XorV1jr11RHxB9z4fqykm6xCUPX1aTJo
 
 This node's multiaddress:
-/ip4/0.0.0.0/tcp/0/ipfs/QmWVx9NwsgaVWMRHNCpesq1WQAw2T3JurjGDNeVNWifPS7
+/ip4/0.0.0.0/tcp/0/p2p/QmWVx9NwsgaVWMRHNCpesq1WQAw2T3JurjGDNeVNWifPS7
 > hi
 > hello
 ```

@@ -22,8 +22,8 @@ From the `go-libp2p-examples` directory run the following:
 
 ```
 > ./echo -l 10000
-2017/03/15 14:11:32 I am /ip4/127.0.0.1/tcp/10000/ipfs/QmYo41GybvrXk8y8Xnm1P7pfA4YEXCpfnLyzgRPnNbG35e
-2017/03/15 14:11:32 Now run "./echo -l 10001 -d /ip4/127.0.0.1/tcp/10000/ipfs/QmYo41GybvrXk8y8Xnm1P7pfA4YEXCpfnLyzgRPnNbG35e" on a different terminal
+2017/03/15 14:11:32 I am /ip4/127.0.0.1/tcp/10000/p2p/QmYo41GybvrXk8y8Xnm1P7pfA4YEXCpfnLyzgRPnNbG35e
+2017/03/15 14:11:32 Now run "./echo -l 10001 -d /ip4/127.0.0.1/tcp/10000/p2p/QmYo41GybvrXk8y8Xnm1P7pfA4YEXCpfnLyzgRPnNbG35e" on a different terminal
 2017/03/15 14:11:32 listening for connections
 ```
 
@@ -32,7 +32,7 @@ The listener libp2p host will print its `Multiaddress`, which indicates how it c
 Now, launch another node that talks to the listener:
 
 ```
-> ./echo -l 10001 -d /ip4/127.0.0.1/tcp/10000/ipfs/QmYo41GybvrXk8y8Xnm1P7pfA4YEXCpfnLyzgRPnNbG35e
+> ./echo -l 10001 -d /ip4/127.0.0.1/tcp/10000/p2p/QmYo41GybvrXk8y8Xnm1P7pfA4YEXCpfnLyzgRPnNbG35e
 ```
 
 The new node with send the message `"Hello, world!"` to the listener, which will in turn echo it over the stream and close it. The listener logs the message, and the sender logs the response.
