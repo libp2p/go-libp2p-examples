@@ -58,7 +58,7 @@ func main() {
 		libp2p.Security(libp2ptls.ID, libp2ptls.New),
 		// support secio connections
 		libp2p.Security(secio.ID, secio.New),
-		// support QUIC
+		// support QUIC - experimental
 		libp2p.Transport(libp2pquic.NewTransport),
 		// support any other default transports (TCP)
 		libp2p.DefaultTransports,
@@ -85,7 +85,9 @@ func main() {
 		panic(err)
 	}
 
-	// Now let's setup AutoNAT which helps figuring out if we are behind NAT
+	// If you want to help other peers to figure out if they are behind
+	// NATs, you can launch the server-side of AutoNAT too (AutoRelay
+	// already runs the client)
 	_, err = autonat.NewAutoNATService(ctx, h2,
 		// Support same non default security and transport options as
 		// original host.
@@ -95,11 +97,10 @@ func main() {
 		libp2p.DefaultTransports,
 	)
 
-	// The last steps to get fully up and running would be to
-	// connect to bootstrap peers (or any other peers) and bootstrap
-	// the DHT. We leave this commented as this is an example and the peer
-	// will die as soon as it finishes, so it is unnecessary to
-	// put strain on the network.
+	// The last step to get fully up and running would be to connect to
+	// bootstrap peers (or any other peers). We leave this commented as
+	// this is an example and the peer will die as soon as it finishes, so
+	// it is unnecessary to put strain on the network.
 
 	/*
 		// This connects to public bootstrappers
@@ -109,10 +110,6 @@ func main() {
 			// and that is fine.
 			h2.Connect(ctx, *pi)
 		}
-
-		// Now that we have connected to some peers, we can bootstrap the DHT
-		// and discover even more peers.
-		network.  dht.Bootstrap(ctx)
 	*/
 	fmt.Printf("Hello World, my second hosts ID is %s\n", h2.ID())
 }
