@@ -1,6 +1,6 @@
 # The libp2p 'host'
 
-For most applications, the host is the basic building block you'll need to get started. This guide will show how to construct and use a simple host.
+For most applications, the host is the basic building block you'll need to get started. This guide will show how to construct and use a simple host on one side, and a more fully-featured host on the other.
 
 The host is an abstraction that manages services on top of a swarm. It provides a clean interface to connect to a service on a given remote peer.
 
@@ -30,24 +30,56 @@ if err != nil {
 fmt.Printf("Hello World, my hosts ID is %s\n", h.ID())
 ```
 
-If you want more control over the configuration, you can specify some options to the constructor. For a full list of all the configuration supported by the constructor see: [options.go](https://github.com/libp2p/go-libp2p/blob/master/options.go)
+If you want more control over the configuration, you can specify some options to the constructor. For a full list of all the configuration supported by the constructor [see the different options in the docs](https://godoc.org/github.com/libp2p/go-libp2p).
 
-In this snippet we generate our own ID and specified on which address we want to listen:
+In this snippet we set a number of useful options like a custom ID and enable routing. This will improve discoverability and reachability of the peer on NAT'ed environments:
 
 ```go
 // Set your own keypair
-priv, _, err := crypto.GenerateEd25519Key(rand.Reader)
+priv, _, err := crypto.GenerateKeyPair(
+	crypto.Ed25519, // Select your key type. Ed25519 are nice short
+	-1,             // Select key length when possible (i.e. RSA).
+)
 if err != nil {
 	panic(err)
 }
 
-h2, err := libp2p.New(ctx,
-	// Use your own created keypair
-	libp2p.Identity(priv),
+var idht *dht.IpfsDHT
 
-	// Set your own listen address
-	// The config takes an array of addresses, specify as many as you want.
-	libp2p.ListenAddrStrings("/ip4/0.0.0.0/tcp/9000"),
+h2, err := libp2p.New(ctx,
+	// Use the keypair we generated
+	libp2p.Identity(priv),
+	// Multiple listen addresses
+	libp2p.ListenAddrStrings(
+		"/ip4/0.0.0.0/tcp/9000",      // regular tcp connections
+		"/ip4/0.0.0.0/udp/9000/quic", // a UDP endpoint for the QUIC transport
+	),
+	// support TLS connections
+	libp2p.Security(libp2ptls.ID, libp2ptls.New),
+	// support secio connections
+	libp2p.Security(secio.ID, secio.New),
+	// support QUIC
+	libp2p.Transport(libp2pquic.NewTransport),
+	// support any other default transports (TCP)
+	libp2p.DefaultTransports,
+	// Let's prevent our peer from having too many
+	// connections by attaching a connection manager.
+	libp2p.ConnectionManager(connmgr.NewConnManager(
+		100,         // Lowwater
+		400,         // HighWater,
+		time.Minute, // GracePeriod
+	)),
+	// Attempt to open ports using uPNP for NATed hosts.
+	libp2p.NATPortMap(),
+	// Let this host use the DHT to find other hosts
+	libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
+		idht, err = dht.New(ctx, h)
+		return idht, err
+	}),
+	// Let this host use relays and advertise itself on relays if
+	// it finds it is behind NAT. Use libp2p.Relay(options...) to
+	// enable active relays and more.
+	libp2p.EnableAutoRelay(),
 )
 if err != nil {
 	panic(err)
