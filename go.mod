@@ -3,7 +3,7 @@ module github.com/libp2p/go-libp2p-examples
 require (
 	github.com/gogo/protobuf v1.3.1
 	github.com/google/uuid v1.1.1
-	github.com/ipfs/go-datastore v0.4.1
+	github.com/ipfs/go-datastore v0.4.2
 	github.com/ipfs/go-log v0.0.1
 	github.com/libp2p/go-libp2p v0.5.1
 	github.com/libp2p/go-libp2p-autonat-svc v0.1.0
