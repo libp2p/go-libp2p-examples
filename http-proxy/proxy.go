@@ -66,7 +66,7 @@ func NewProxyService(h host.Host, proxyAddr ma.Multiaddr, dest peer.ID) *ProxySe
 		ps = "Remote Peer" 
 	}
 
-	fmt.Printf("%s server is rfeady", ps)
+	fmt.Printf("%s server is ready", ps)
 	fmt.Println("libp2p-peer addresses:")
 	for _, a := range h.Addrs() {
 		fmt.Printf("%s/ipfs/%s\n", a, peer.IDB58Encode(h.ID()))
