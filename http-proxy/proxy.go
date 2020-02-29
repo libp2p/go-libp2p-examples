@@ -63,7 +63,7 @@ func NewProxyService(h host.Host, proxyAddr ma.Multiaddr, dest peer.ID) *ProxySe
 	// ps := "Proxy"
 	// if len(dest) == 0 {
 	// 	h.SetStreamHandler(Protocol, streamHandler)
-	// 	ps = "Remote Peer" 
+	// 	ps = "Remote Peer"
 	// }
 
 	// fmt.Printf("%s server is ready", ps)
