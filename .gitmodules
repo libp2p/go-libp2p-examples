@@ -1,3 +1,6 @@
 [submodule "room-chat-with-mdns"]
 	path = room-chat-with-mdns
 	url = git@github.com:jolatechno/room-chat-with-mdns.git
+[submodule "room-chat-with-rendezvous"]
+	path = room-chat-with-rendezvous
+	url = git@github.com:jolatechno/room-chat-with-rendezvous.git
