@@ -1,3 +1,6 @@
 [submodule "libp2p-rendezvous-peerstore"]
 	path = libp2p-rendezvous-peerstore
 	url = git@github.com:jolatechno/libp2p-rendezvous-peerstore.git
+[submodule "mpi-peerstore"]
+	path = mpi-peerstore
+	url = git@github.com:jolatechno/mpi-peerstore.git
