@@ -114,7 +114,7 @@ func main() {
 		panic(err)
 	}
 
-	p := peerstore.NewPeerstore(writeData)
+	p := peerstore.NewPeerstore()
 
 	go func(){
 		stdReader := bufio.NewReader(os.Stdin)
@@ -151,7 +151,7 @@ func main() {
 				fmt.Println("Stream open failed", err)
 			} else {
 				rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
-				err := writeData(rw, peer.IDHexEncode(host.ID()))
+				err := writeData(rw)(peer.IDHexEncode(host.ID()))
 				if err != nil {
 					continue
 				}
