@@ -4,3 +4,6 @@
 [submodule "room-chat-with-rendezvous"]
 	path = room-chat-with-rendezvous
 	url = git@github.com:jolatechno/room-chat-with-rendezvous.git
+[submodule "libp2p-rendezvous-peerstore"]
+	path = libp2p-rendezvous-peerstore
+	url = git@github.com:jolatechno/libp2p-rendezvous-peerstore.git
