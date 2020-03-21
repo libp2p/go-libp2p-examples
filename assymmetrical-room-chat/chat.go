@@ -30,21 +30,13 @@ func handleStream(p peerstore.Peerstore) func(network.Stream){
 		// Create a buffer stream for non blocking read and write.
 		rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
 
-		addr, err := rw.ReadString('\n')
-		addr = strings.Replace(addr, "\n", "", -1)
-
 		if err != nil {
 			return //errors here shloud just disconnect the handler
 		}
 
-		if !p.Has(addr) {
-			ID, _ := peer.IDHexDecode(addr)
-			logger.Info("received connection from:", ID)
+		go readData(rw)
 
-			p.Add(addr, rw)
-			go readData(rw)
-		}
-		// 'stream' will stay open until you close it (or the other side closes it).
+		logger.Info("Got a new stream !")
 	}
 }
 
@@ -196,17 +188,7 @@ func main() {
 			}
 
 			rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
-			err := writeData(rw, peer.IDHexEncode(host.ID()))
-
-			if err != nil {
-				if !config.quiet {
-					logger.Warning("Connection failed:", err)
-				}
-				continue
-			}
-
 			p.Add(peer.IDHexEncode(Peer.ID), rw)
-			go readData(rw)
 
 			logger.Info("Connected to:", Peer.ID)
 		}
