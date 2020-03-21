@@ -136,6 +136,8 @@ github.com/jbenet/goprocess v0.1.3 h1:YKyIEECS/XvcfHtBzxtjBBbWK+MbvA6dG8ASiqwvr1
 github.com/jbenet/goprocess v0.1.3/go.mod h1:5yspPrukOVuOLORacaBi858NqyClJPQxYZlqdZVfqY4=
 github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
+github.com/jolatechno/mpi-peerstore v0.0.0-20200321221407-963842a0d293 h1:RJdocitTkbkOtHN0fstOExPueUUzwL+xWMX86rJaDs0=
+github.com/jolatechno/mpi-peerstore v0.0.0-20200321221407-963842a0d293/go.mod h1:Tbqcf1BYubConj/i4cFWr8f7IOcBGGxv0WcBL/Ap+xw=
 github.com/jolatechno/peerstore-rendezvous v0.0.0-20200321215800-b02fbe4b8d01 h1:P/gdNfyLqbFr2uhrzhWGYrKwVsniownyKsvtr+qpLao=
 github.com/jolatechno/peerstore-rendezvous v0.0.0-20200321215800-b02fbe4b8d01/go.mod h1:XI05e825ZIxigIw24mKWI9jnApuvK0dEmssKC1FdxEc=
 github.com/jrick/logrotate v1.0.0/go.mod h1:LNinyqDIJnpAur+b8yyulnQw/wDuN1+BYKlTRt3OuAQ=
