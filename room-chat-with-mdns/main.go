@@ -15,7 +15,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/protocol"
 
-	"github.com/jolatechno/peerstore-rendezvous"
+	"github.com/jolatechno/mpi-peerstore"
 
 	"github.com/multiformats/go-multiaddr"
 )

@@ -13,7 +13,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-discovery"
 
-	"github.com/jolatechno/peerstore-rendezvous"
+	"github.com/jolatechno/mpi-peerstore"
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	multiaddr "github.com/multiformats/go-multiaddr"
