@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"sync"
+	"os"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/network"
@@ -101,7 +102,7 @@ func main() {
 		logger.Info(host.Addrs())
 	}
 
-	p := peerstore.NewPeerstore(writeData)
+	p := peerstore.NewPeerstore()
 
 	go func(){
 		stdReader := bufio.NewReader(os.Stdin)

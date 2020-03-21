@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sync"
 	"strings"
+	"os"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/network"
@@ -115,7 +116,7 @@ func main() {
 		logger.Info(host.Addrs())
 	}
 
-	p := peerstore.NewPeerstore(writeData)
+	p := peerstore.NewPeerstore()
 
 	go func(){
 		stdReader := bufio.NewReader(os.Stdin)
@@ -212,7 +213,7 @@ func main() {
 			}
 
 			rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
-			err := writeData(rw, peer.IDHexEncode(host.ID()))
+			err = writeData(rw)(peer.IDHexEncode(host.ID()))
 
 			if err != nil {
 				if !config.quiet {
