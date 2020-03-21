@@ -4,8 +4,6 @@ This program is a copy of the `chat-with-rendezvous` example with the ability to
 
 ## How to build this example?
 
-clone this repo __inside__ the [go-libp2p-examples](https://github.com/libp2p/go-libp2p-examples) repo.
-
 ```
 cd room-chat-with-rendezvous/
 go build -o chat
