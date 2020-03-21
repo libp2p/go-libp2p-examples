@@ -31,7 +31,7 @@ Use different terminal windows to run
 
 ### *difference with chat-with-rendezvous*
 
-This example uses a custom [peerstore](https://github.com/jolatechno/peerstore).
+This example uses a custom [peerstore](https://github.com/jolatechno/mpi-peerstore).
 
 On peer discovery, the first message sent is the host ID. Each peer check if they have a connection to the given peer and if not store the stream in a map where key are peer ID.
 

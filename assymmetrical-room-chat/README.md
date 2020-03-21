@@ -29,7 +29,7 @@ Use different terminal windows to run
 
 ### *difference with room-chat-with-rendezvous*
 
-This example uses a custom [peerstore](https://github.com/jolatechno/peerstore).
+This example uses a custom [peerstore](https://github.com/jolatechno/mpi-peerstore).
 
 This time, the host only listen to peer that connected to it (using the `handleStream` function), and only write to peer it discovered.
 
