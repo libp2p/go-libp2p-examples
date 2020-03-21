@@ -41,7 +41,7 @@ func handleStream(p peerstore.Peerstore) func(network.Stream){
 			ID, _ := peer.IDHexDecode(addr)
 			logger.Info("received connection from:", ID)
 
-			p.Add(addr, rw)
+			p.Add(addr, writeData(rw))
 			go readData(rw)
 		}
 		// 'stream' will stay open until you close it (or the other side closes it).
@@ -67,17 +67,19 @@ func readData(rw *bufio.ReadWriter) {
 	}
 }
 
-func writeData(rw *bufio.ReadWriter, str string) error{
-	_, err := rw.WriteString(fmt.Sprintf("%s\n", str))
-	if err != nil {
-		return err
-	}
-	err = rw.Flush()
-	if err != nil {
-		return err
-	}
+func writeData(rw *bufio.ReadWriter) func(string) error{
+	return func(str string) error{
+		_, err := rw.WriteString(fmt.Sprintf("%s\n", str))
+		if err != nil {
+			return err
+		}
+		err = rw.Flush()
+		if err != nil {
+			return err
+		}
 
-	return nil
+		return nil
+	}
 }
 
 func main() {
@@ -114,6 +116,20 @@ func main() {
 	}
 
 	p := peerstore.NewPeerstore(writeData)
+
+	go func(){
+		stdReader := bufio.NewReader(os.Stdin)
+
+		for{
+			str, err := stdReader.ReadString('\n')
+
+			if err != nil {
+				continue
+			}
+
+			p.WriteAll(str)
+		}
+	}()
 	// Set a function as stream handler. This function is called when a peer
 	// initiates a connection and starts a stream with this peer.
 	host.SetStreamHandler(protocol.ID(config.ProtocolID), handleStream(p))
@@ -205,7 +221,7 @@ func main() {
 				continue
 			}
 
-			p.Add(peer.IDHexEncode(Peer.ID), rw)
+			p.Add(peer.IDHexEncode(Peer.ID), writeData(rw))
 			go readData(rw)
 
 			logger.Info("Connected to:", Peer.ID)
