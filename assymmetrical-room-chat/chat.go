@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"sync"
-	"strings"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/network"
@@ -29,11 +28,6 @@ func handleStream(p peerstore.Peerstore) func(network.Stream){
 	return func(stream network.Stream) {
 		// Create a buffer stream for non blocking read and write.
 		rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
-
-		if err != nil {
-			return //errors here shloud just disconnect the handler
-		}
-
 		go readData(rw)
 
 		logger.Info("Got a new stream !")
