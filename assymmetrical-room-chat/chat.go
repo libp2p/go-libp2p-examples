@@ -13,7 +13,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-discovery"
 
-	"github.com/jolatechno/peerstore"
+	"github.com/jolatechno/libp2p-peerstore"
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	multiaddr "github.com/multiformats/go-multiaddr"
@@ -112,7 +112,7 @@ func main() {
 			if err != nil {
 				continue
 			}
-			
+
 			p.WriteAll(str)
 		}
 	}()
