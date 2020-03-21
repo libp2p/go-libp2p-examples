@@ -138,6 +138,8 @@ github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jolatechno/mpi-peerstore v0.0.0-20200321221407-963842a0d293 h1:RJdocitTkbkOtHN0fstOExPueUUzwL+xWMX86rJaDs0=
 github.com/jolatechno/mpi-peerstore v0.0.0-20200321221407-963842a0d293/go.mod h1:Tbqcf1BYubConj/i4cFWr8f7IOcBGGxv0WcBL/Ap+xw=
+github.com/jolatechno/mpi-peerstore v0.0.0-20200321224357-6c12e280e590 h1:W2jWKlrBoRslhiC60bDRmV30dr1lHPKJwQIfU2O0vCo=
+github.com/jolatechno/mpi-peerstore v0.0.0-20200321224357-6c12e280e590/go.mod h1:Tbqcf1BYubConj/i4cFWr8f7IOcBGGxv0WcBL/Ap+xw=
 github.com/jolatechno/mpi-peerstore2 v0.0.0-20200321222012-fb703d1a2493 h1:K7DqcGr6p17aSzRG8BRwH1Ljue1sOaO4WHfuIZ70ZCM=
 github.com/jolatechno/mpi-peerstore2 v0.0.0-20200321222012-fb703d1a2493/go.mod h1:KoDPGHM1L1KKo2J1JEKgiCEycZeAG/IwMGxjNh+qY7Q=
 github.com/jolatechno/mpi-peerstore2 v0.0.0-20200321222534-803f6de711fc h1:0POeXlpcEICBErmziLdLmAoFj4/rz3xS3+MzQHRk2SU=
