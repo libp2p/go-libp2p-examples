@@ -7,33 +7,47 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/protocol"
 
+	"github.com/jolatechno/peerstore"
+
 	"github.com/multiformats/go-multiaddr"
 )
 
-func handleStream(stream network.Stream) {
-	fmt.Println("Got a new stream!")
+func handleStream(p peerstore.Peerstore) func(network.Stream){
+	return func(stream network.Stream) {
+		// Create a buffer stream for non blocking read and write.
+		rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
 
-	// Create a buffer stream for non blocking read and write.
-	rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
+		addr, err := rw.ReadString('\n')
+		addr = strings.Replace(addr, "\n", "", -1)
 
-	go readData(rw)
-	go writeData(rw)
+		if err != nil {
+			return //errors here shloud just disconnect the handler
+		}
 
-	// 'stream' will stay open until you close it (or the other side closes it).
+		if !p.Has(addr) {
+			ID, _ := peer.IDHexDecode(addr)
+			fmt.Println("received connection from:", ID)
+
+			p.Add(addr, rw)
+			go readData(rw)
+		}
+		// 'stream' will stay open until you close it (or the other side closes it).
+	}
 }
 
 func readData(rw *bufio.ReadWriter) {
 	for {
 		str, err := rw.ReadString('\n')
 		if err != nil {
-			fmt.Println("Error reading from buffer")
-			panic(err)
+			return //errors here shloud just disconnect the reader
 		}
 
 		if str == "" {
@@ -42,34 +56,23 @@ func readData(rw *bufio.ReadWriter) {
 		if str != "\n" {
 			// Green console colour: 	\x1b[32m
 			// Reset console colour: 	\x1b[0m
-			fmt.Printf("\x1b[32m%s\x1b[0m> ", str)
+			fmt.Printf("\x1b[32m%s\x1b[0m", str)
 		}
 
 	}
 }
 
-func writeData(rw *bufio.ReadWriter) {
-	stdReader := bufio.NewReader(os.Stdin)
-
-	for {
-		fmt.Print("> ")
-		sendData, err := stdReader.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error reading from stdin")
-			panic(err)
-		}
-
-		_, err = rw.WriteString(fmt.Sprintf("%s\n", sendData))
-		if err != nil {
-			fmt.Println("Error writing to buffer")
-			panic(err)
-		}
-		err = rw.Flush()
-		if err != nil {
-			fmt.Println("Error flushing buffer")
-			panic(err)
-		}
+func writeData(rw *bufio.ReadWriter, str string) error{
+	_, err := rw.WriteString(fmt.Sprintf("%s\n", str))
+	if err != nil {
+		return err
 	}
+	err = rw.Flush()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func main() {
@@ -109,33 +112,40 @@ func main() {
 		panic(err)
 	}
 
+	p := peerstore.NewPeerstore(writeData)
+
 	// Set a function as stream handler.
 	// This function is called when a peer initiates a connection and starts a stream with this peer.
-	host.SetStreamHandler(protocol.ID(cfg.ProtocolID), handleStream)
+	host.SetStreamHandler(protocol.ID(cfg.ProtocolID), handleStream(p))
 
 	fmt.Printf("\n[*] Your Multiaddress Is: /ip4/%s/tcp/%v/p2p/%s\n", cfg.listenHost, cfg.listenPort, host.ID().Pretty())
 
 	peerChan := initMDNS(ctx, host, cfg.RendezvousString)
 
-	peer := <-peerChan // will block untill we discover a peer
-	fmt.Println("Found peer:", peer, ", connecting")
+	for {
+		Peer := <-peerChan // will block untill we discover a peer
+		if !p.Has(peer.IDHexEncode(Peer.ID)) {
+			if err := host.Connect(ctx, Peer); err != nil {
+				fmt.Println("Connection failed:", err)
+			}
 
-	if err := host.Connect(ctx, peer); err != nil {
-		fmt.Println("Connection failed:", err)
+			// open a stream, this stream will be handled by handleStream other end
+			stream, err := host.NewStream(ctx, Peer.ID, protocol.ID(cfg.ProtocolID))
+
+			if err != nil {
+				fmt.Println("Stream open failed", err)
+			} else {
+				rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
+				err := writeData(rw, peer.IDHexEncode(host.ID()))
+				if err != nil {
+					continue
+				}
+
+				p.Add(peer.IDHexEncode(Peer.ID), rw)
+				go readData(rw)
+
+				fmt.Println("Connected to:", Peer.ID)
+			}
+		}
 	}
-
-	// open a stream, this stream will be handled by handleStream other end
-	stream, err := host.NewStream(ctx, peer.ID, protocol.ID(cfg.ProtocolID))
-
-	if err != nil {
-		fmt.Println("Stream open failed", err)
-	} else {
-		rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
-
-		go writeData(rw)
-		go readData(rw)
-		fmt.Println("Connected to:", peer)
-	}
-
-	select {} //wait here
 }

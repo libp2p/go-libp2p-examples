@@ -5,14 +5,16 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"os"
 	"sync"
+	"strings"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-discovery"
+
+	"github.com/jolatechno/peerstore"
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	multiaddr "github.com/multiformats/go-multiaddr"
@@ -23,24 +25,34 @@ import (
 
 var logger = log.Logger("rendezvous")
 
-func handleStream(stream network.Stream) {
-	logger.Info("Got a new stream!")
+func handleStream(p peerstore.Peerstore) func(network.Stream){
+	return func(stream network.Stream) {
+		// Create a buffer stream for non blocking read and write.
+		rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
 
-	// Create a buffer stream for non blocking read and write.
-	rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
+		addr, err := rw.ReadString('\n')
+		addr = strings.Replace(addr, "\n", "", -1)
 
-	go readData(rw)
-	go writeData(rw)
+		if err != nil {
+			return //errors here shloud just disconnect the handler
+		}
 
-	// 'stream' will stay open until you close it (or the other side closes it).
+		if !p.Has(addr) {
+			ID, _ := peer.IDHexDecode(addr)
+			logger.Info("received connection from:", ID)
+
+			p.Add(addr, rw)
+			go readData(rw)
+		}
+		// 'stream' will stay open until you close it (or the other side closes it).
+	}
 }
 
 func readData(rw *bufio.ReadWriter) {
 	for {
 		str, err := rw.ReadString('\n')
 		if err != nil {
-			fmt.Println("Error reading from buffer")
-			panic(err)
+			return //errors here shloud just disconnect the reader
 		}
 
 		if str == "" {
@@ -49,34 +61,23 @@ func readData(rw *bufio.ReadWriter) {
 		if str != "\n" {
 			// Green console colour: 	\x1b[32m
 			// Reset console colour: 	\x1b[0m
-			fmt.Printf("\x1b[32m%s\x1b[0m> ", str)
+			fmt.Printf("\x1b[32m%s\x1b[0m", str)
 		}
 
 	}
 }
 
-func writeData(rw *bufio.ReadWriter) {
-	stdReader := bufio.NewReader(os.Stdin)
-
-	for {
-		fmt.Print("> ")
-		sendData, err := stdReader.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error reading from stdin")
-			panic(err)
-		}
-
-		_, err = rw.WriteString(fmt.Sprintf("%s\n", sendData))
-		if err != nil {
-			fmt.Println("Error writing to buffer")
-			panic(err)
-		}
-		err = rw.Flush()
-		if err != nil {
-			fmt.Println("Error flushing buffer")
-			panic(err)
-		}
+func writeData(rw *bufio.ReadWriter, str string) error{
+	_, err := rw.WriteString(fmt.Sprintf("%s\n", str))
+	if err != nil {
+		return err
 	}
+	err = rw.Flush()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func main() {
@@ -106,12 +107,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	logger.Info("Host created. We are:", host.ID())
-	logger.Info(host.Addrs())
 
+	logger.Info("Host created. We are:", host.ID())
+	if !config.quiet {
+		logger.Info(host.Addrs())
+	}
+
+	p := peerstore.NewPeerstore(writeData)
 	// Set a function as stream handler. This function is called when a peer
 	// initiates a connection and starts a stream with this peer.
-	host.SetStreamHandler(protocol.ID(config.ProtocolID), handleStream)
+	host.SetStreamHandler(protocol.ID(config.ProtocolID), handleStream(p))
 
 	// Start a DHT, for use in peer discovery. We can't just make a new DHT
 	// client because we want each peer to maintain its own local copy of the
@@ -124,9 +129,11 @@ func main() {
 
 	// Bootstrap the DHT. In the default configuration, this spawns a Background
 	// thread that will refresh the peer table every five minutes.
-	logger.Debug("Bootstrapping the DHT")
+	if !config.quiet {
+		logger.Debug("Bootstrapping the DHT")
+	}
 	if err = kademliaDHT.Bootstrap(ctx); err != nil {
-		panic(err)
+			panic(err)
 	}
 
 	// Let's connect to the bootstrap nodes first. They will tell us about the
@@ -138,9 +145,13 @@ func main() {
 		go func() {
 			defer wg.Done()
 			if err := host.Connect(ctx, *peerinfo); err != nil {
-				logger.Warning(err)
+				if !config.quiet {
+					logger.Warning(err)
+				}
 			} else {
-				logger.Info("Connection established with bootstrap node:", *peerinfo)
+				if !config.quiet {
+					logger.Info("Connection established with bootstrap node:", *peerinfo)
+				}
 			}
 		}()
 	}
@@ -148,40 +159,55 @@ func main() {
 
 	// We use a rendezvous point "meet me here" to announce our location.
 	// This is like telling your friends to meet you at the Eiffel Tower.
-	logger.Info("Announcing ourselves...")
+	if !config.quiet {
+		logger.Info("Announcing ourselves...")
+	}
 	routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
 	discovery.Advertise(ctx, routingDiscovery, config.RendezvousString)
-	logger.Debug("Successfully announced!")
+	if !config.quiet {
+		logger.Debug("Successfully announced!")
 
-	// Now, look for others who have announced
-	// This is like your friend telling you the location to meet you.
-	logger.Debug("Searching for other peers...")
-	peerChan, err := routingDiscovery.FindPeers(ctx, config.RendezvousString)
-	if err != nil {
-		panic(err)
+		// Now, look for others who have announced
+		// This is like your friend telling you the location to meet you.
+		logger.Debug("Searching for other peers...")
 	}
 
-	for peer := range peerChan {
-		if peer.ID == host.ID() {
-			continue
-		}
-		logger.Debug("Found peer:", peer)
-
-		logger.Debug("Connecting to:", peer)
-		stream, err := host.NewStream(ctx, peer.ID, protocol.ID(config.ProtocolID))
-
+	for {
+		peerChan, err := routingDiscovery.FindPeers(ctx, config.RendezvousString)
 		if err != nil {
-			logger.Warning("Connection failed:", err)
-			continue
-		} else {
-			rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
-
-			go writeData(rw)
-			go readData(rw)
+			panic(err)
 		}
 
-		logger.Info("Connected to:", peer)
-	}
+		for Peer := range peerChan {
+			if Peer.ID == host.ID() || p.Has(peer.IDHexEncode(Peer.ID)) {
+				continue
+			}
+			if !config.quiet {
+				logger.Debug("Found peer:", Peer)
+				logger.Debug("Connecting to:", Peer)
+			}
+			stream, err := host.NewStream(ctx, Peer.ID, protocol.ID(config.ProtocolID))
 
-	select {}
+			if err != nil {
+				if !config.quiet {
+					logger.Warning("Connection failed:", err)
+				}
+				continue
+			} else {
+				rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
+				err := writeData(rw, peer.IDHexEncode(host.ID()))
+				if err != nil {
+					if !config.quiet {
+						logger.Warning("Connection failed:", err)
+					}
+					continue
+				}
+
+				p.Add(peer.IDHexEncode(Peer.ID), rw)
+				go readData(rw)
+
+				logger.Info("Connected to:", Peer.ID)
+			}
+		}
+	}
 }

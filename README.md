@@ -11,13 +11,6 @@ Let us know if you find any issue or if you want to contribute and add a new tut
 
 ## Examples and Tutorials
 
-- [The libp2p 'host'](./libp2p-host)
-- [Building an http proxy with libp2p](./http-proxy)
-- [An echo host](./echo)
-- [Multicodecs with protobufs](./multipro)
-- [P2P chat application](./chat)
-- [P2P chat application w/ rendezvous peer discovery](./chat-with-rendezvous)
-- [P2P chat application with peer discovery using mdns](./chat-with-mdns)
 - [P2P chat room with rendezvous peer discovery](./room-chat-with-rendezvous)
 - [P2P chat room with peer discovery using mdns](./room-chat-with-mdns)
 

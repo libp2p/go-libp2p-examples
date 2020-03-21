@@ -40,6 +40,7 @@ func StringsToAddrs(addrStrings []string) (maddrs []maddr.Multiaddr, err error) 
 }
 
 type Config struct {
+	quiet bool
 	RendezvousString string
 	BootstrapPeers   addrList
 	ListenAddresses  addrList
@@ -48,6 +49,7 @@ type Config struct {
 
 func ParseFlags() (Config, error) {
 	config := Config{}
+	flag.BoolVar(&config.quiet, "q", false, "quiet mode")
 	flag.StringVar(&config.RendezvousString, "rendezvous", "meet me here",
 		"Unique string to identify group of nodes. Share this with your friends to let them connect with you")
 	flag.Var(&config.BootstrapPeers, "peer", "Adds a peer multiaddress to the bootstrap list")
