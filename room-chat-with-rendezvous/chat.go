@@ -14,6 +14,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p-discovery"
+	"github.com/libp2p/go-libp2p-core/host"
 
 	"github.com/jolatechno/mpi-peerstore"
 
@@ -39,7 +40,7 @@ func handleStream(p peerstore.Peerstore) func(network.Stream){
 		}
 
 		if !p.Has(addr) {
-			ID, _ := peer.IDHexDecode(addr)
+			ID, _ := peer.IDB58Decode(addr)
 			logger.Info("received connection from:", ID)
 
 			w := writeData(rw)
@@ -81,6 +82,35 @@ func writeData(rw *bufio.ReadWriter) func(string) error{
 		}
 
 		return nil
+	}
+}
+
+func discoveryHandler(ctx context.Context, config Config, host host.Host) func(*peerstore.Peerstore,peer.ID){
+	return func (p *peerstore.Peerstore, id peer.ID){
+		stream, err := host.NewStream(ctx, id, protocol.ID(config.ProtocolID))
+
+		if err != nil {
+			if !config.quiet {
+				logger.Warning("Connection failed:", err)
+			}
+			return
+		}
+
+		rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
+		err = writeData(rw)(peer.IDB58Encode(host.ID()))
+
+		if err != nil {
+			if !config.quiet {
+				logger.Warning("Connection failed:", err)
+			}
+			return
+		}
+
+		w := writeData(rw)
+		p.Add(peer.IDB58Encode(id), &w)
+		go readData(rw)
+
+		logger.Info("Connected to:", id)
 	}
 }
 
@@ -136,6 +166,8 @@ func main() {
 	// initiates a connection and starts a stream with this peer.
 	host.SetStreamHandler(protocol.ID(config.ProtocolID), handleStream(p))
 
+	p.SetHostId(peer.IDB58Encode(host.ID()))
+
 	// Start a DHT, for use in peer discovery. We can't just make a new DHT
 	// client because we want each peer to maintain its own local copy of the
 	// DHT, so that the bootstrapping node of the DHT can go down without
@@ -180,54 +212,10 @@ func main() {
 	if !config.quiet {
 		logger.Info("Announcing ourselves...")
 	}
+
+	dh := discoveryHandler(ctx, config, host)
 	routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
-	discovery.Advertise(ctx, routingDiscovery, config.RendezvousString)
-	if !config.quiet {
-		logger.Debug("Successfully announced!")
+	p.Listen(ctx, routingDiscovery, config.RendezvousString, &dh)
 
-		// Now, look for others who have announced
-		// This is like your friend telling you the location to meet you.
-		logger.Debug("Searching for other peers...")
-	}
-
-	for {
-		peerChan, err := routingDiscovery.FindPeers(ctx, config.RendezvousString)
-		if err != nil {
-			panic(err)
-		}
-
-		for Peer := range peerChan {
-			if Peer.ID == host.ID() || p.Has(peer.IDHexEncode(Peer.ID)) {
-				continue
-			}
-			if !config.quiet {
-				logger.Debug("Found peer:", Peer)
-				logger.Debug("Connecting to:", Peer)
-			}
-			stream, err := host.NewStream(ctx, Peer.ID, protocol.ID(config.ProtocolID))
-
-			if err != nil {
-				if !config.quiet {
-					logger.Warning("Connection failed:", err)
-				}
-				continue
-			}
-
-			rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
-			err = writeData(rw)(peer.IDHexEncode(host.ID()))
-
-			if err != nil {
-				if !config.quiet {
-					logger.Warning("Connection failed:", err)
-				}
-				continue
-			}
-
-			w := writeData(rw)
-			p.Add(peer.IDHexEncode(Peer.ID), &w)
-			go readData(rw)
-
-			logger.Info("Connected to:", Peer.ID)
-		}
-	}
+	select {}
 }
