@@ -9,5 +9,5 @@ This folder contains example complementing and inspired by the examples in the [
 
 ## Examples and Tutorials
 
-- [P2P assymmetrical chat room with peer discovery using mdns](./assymmetrical-room-chat)
+- [P2P assymmetrical chat room with rendezvous peer discovery](./assymmetrical-room-chat)
 - [P2P chat room with rendezvous peer discovery](./room-chat-with-rendezvous)
