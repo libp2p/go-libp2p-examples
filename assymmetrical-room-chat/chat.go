@@ -199,7 +199,8 @@ func main() {
 			}
 
 			rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
-			p.Add(peer.IDHexEncode(Peer.ID), writeData(rw))
+			w := writeData(rw)
+			p.Add(peer.IDHexEncode(Peer.ID), &w)
 
 			logger.Info("Connected to:", Peer.ID)
 		}

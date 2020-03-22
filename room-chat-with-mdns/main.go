@@ -36,7 +36,8 @@ func handleStream(p peerstore.Peerstore) func(network.Stream){
 			ID, _ := peer.IDHexDecode(addr)
 			fmt.Println("received connection from:", ID)
 
-			p.Add(addr, writeData(rw))
+			w := writeData(rw)
+			p.Add(addr, &w)
 			go readData(rw)
 		}
 		// 'stream' will stay open until you close it (or the other side closes it).
@@ -156,7 +157,8 @@ func main() {
 					continue
 				}
 
-				p.Add(peer.IDHexEncode(Peer.ID), writeData(rw))
+				w := writeData(rw)
+				p.Add(peer.IDHexEncode(Peer.ID), &w)
 				go readData(rw)
 
 				fmt.Println("Connected to:", Peer.ID)
