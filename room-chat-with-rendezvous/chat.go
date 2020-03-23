@@ -5,7 +5,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"sync"
 	"strings"
 	"os"
 
@@ -13,12 +12,11 @@ import (
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
-	"github.com/libp2p/go-libp2p-discovery"
 	"github.com/libp2p/go-libp2p-core/host"
 
 	"github.com/jolatechno/mpi-peerstore"
+	"github.com/jolatechno/mpi-peerstore/utils"
 
-	dht "github.com/libp2p/go-libp2p-kad-dht"
 	multiaddr "github.com/multiformats/go-multiaddr"
 	logging "github.com/whyrusleeping/go-logging"
 
@@ -118,12 +116,15 @@ func discoveryHandler(ctx context.Context, config Config, host host.Host) func(*
 
 
 func main() {
-	log.SetAllLoggers(logging.WARNING)
 	log.SetLogLevel("rendezvous", "info")
 	help := flag.Bool("h", false, "Display Help")
 	config, err := ParseFlags()
 	if err != nil {
 		panic(err)
+	}
+
+	if !config.quiet {
+		log.SetAllLoggers(logging.WARNING)
 	}
 
 	if *help {
@@ -150,52 +151,12 @@ func main() {
 		logger.Info(host.Addrs())
 	}
 
-	// Start a DHT, for use in peer discovery. We can't just make a new DHT
-	// client because we want each peer to maintain its own local copy of the
-	// DHT, so that the bootstrapping node of the DHT can go down without
-	// inhibiting future peer discovery.
-	kademliaDHT, err := dht.New(ctx, host)
+	Discorvery, err := utils.NewKadmeliaDHT(ctx, host, config.BootstrapPeers)
 	if err != nil {
 		panic(err)
 	}
 
-	// Bootstrap the DHT. In the default configuration, this spawns a Background
-	// thread that will refresh the peer table every five minutes.
-	if !config.quiet {
-		logger.Debug("Bootstrapping the DHT")
-	}
-	if err = kademliaDHT.Bootstrap(ctx); err != nil {
-			panic(err)
-	}
-
-	// Let's connect to the bootstrap nodes first. They will tell us about the
-	// other nodes in the network.
-	var wg sync.WaitGroup
-	for _, peerAddr := range config.BootstrapPeers {
-		peerinfo, _ := peer.AddrInfoFromP2pAddr(peerAddr)
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			if err := host.Connect(ctx, *peerinfo); err != nil {
-				if !config.quiet {
-					logger.Warning(err)
-				}
-			} else {
-				if !config.quiet {
-					logger.Info("Connection established with bootstrap node:", *peerinfo)
-				}
-			}
-		}()
-	}
-	wg.Wait()
-
-	// We use a rendezvous point "meet me here" to announce our location.
-	// This is like telling your friends to meet you at the Eiffel Tower.
-	if !config.quiet {
-		logger.Info("Announcing ourselves...")
-	}
-
-	p := peerstore.NewPeerstore(&host, discovery.NewRoutingDiscovery(kademliaDHT), config.RendezvousString)
+	p := peerstore.NewPeerstore(&host, Discorvery, config.RendezvousString)
 
 	p.SetHostId()
 	p.Annonce(ctx)
