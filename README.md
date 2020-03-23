@@ -38,7 +38,3 @@ To obtain a clean `$GOPATH` execute the following:
 > mkdir /tmp/libp2p-examples
 > export GOPATH=/tmp/libp2p/examples
 ```
-
----
-
-The last gx published version of this module was: 
