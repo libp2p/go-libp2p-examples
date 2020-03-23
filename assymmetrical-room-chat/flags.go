@@ -50,11 +50,11 @@ type Config struct {
 func ParseFlags() (Config, error) {
 	config := Config{}
 	flag.BoolVar(&config.quiet, "q", false, "quiet mode")
-	flag.StringVar(&config.RendezvousString, "rendezvous", "meet me here",
+	flag.StringVar(&config.RendezvousString, "rendezvous", "/meet_me_here/1.0.0",
 		"Unique string to identify group of nodes. Share this with your friends to let them connect with you")
 	flag.Var(&config.BootstrapPeers, "peer", "Adds a peer multiaddress to the bootstrap list")
 	flag.Var(&config.ListenAddresses, "listen", "Adds a multiaddress to the listen list")
-	flag.StringVar(&config.ProtocolID, "pid", "/chat/1.1.0", "Sets a protocol id for stream headers")
+	flag.StringVar(&config.ProtocolID, "pid", "/assymetrical-chat/1.1.0", "Sets a protocol id for stream headers")
 	flag.Parse()
 
 	if len(config.BootstrapPeers) == 0 {

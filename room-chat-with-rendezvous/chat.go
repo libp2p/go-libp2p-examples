@@ -87,7 +87,8 @@ func writeData(rw *bufio.ReadWriter) func(string) error{
 
 func discoveryHandler(ctx context.Context, config Config, host host.Host) func(*peerstore.Peerstore,peer.ID){
 	return func (p *peerstore.Peerstore, id peer.ID){
-		stream, err := host.NewStream(ctx, id, protocol.ID(config.ProtocolID))
+		Protocol := protocol.ID(config.RendezvousString + "//" + config.ProtocolID)
+		stream, err := host.NewStream(ctx, id, Protocol)
 
 		if err != nil {
 			if !config.quiet {
@@ -113,6 +114,8 @@ func discoveryHandler(ctx context.Context, config Config, host host.Host) func(*
 		logger.Info("Connected to:", id)
 	}
 }
+
+
 
 func main() {
 	log.SetAllLoggers(logging.WARNING)
@@ -146,27 +149,6 @@ func main() {
 	if !config.quiet {
 		logger.Info(host.Addrs())
 	}
-
-	p := peerstore.NewPeerstore()
-
-	go func(){
-		stdReader := bufio.NewReader(os.Stdin)
-
-		for{
-			str, err := stdReader.ReadString('\n')
-
-			if err != nil {
-				continue
-			}
-
-			p.WriteAll(str)
-		}
-	}()
-	// Set a function as stream handler. This function is called when a peer
-	// initiates a connection and starts a stream with this peer.
-	host.SetStreamHandler(protocol.ID(config.ProtocolID), handleStream(p))
-
-	p.SetHostId(peer.IDB58Encode(host.ID()))
 
 	// Start a DHT, for use in peer discovery. We can't just make a new DHT
 	// client because we want each peer to maintain its own local copy of the
@@ -213,9 +195,26 @@ func main() {
 		logger.Info("Announcing ourselves...")
 	}
 
-	dh := discoveryHandler(ctx, config, host)
-	routingDiscovery := discovery.NewRoutingDiscovery(kademliaDHT)
-	p.Listen(ctx, routingDiscovery, config.RendezvousString, &dh)
+	p := peerstore.NewPeerstore(&host, discovery.NewRoutingDiscovery(kademliaDHT), config.RendezvousString)
+
+	p.SetHostId()
+	p.Annonce(ctx)
+	p.Listen(ctx, discoveryHandler(ctx, config, host))
+	p.SetStreamHandler(protocol.ID(config.ProtocolID), handleStream(p))
+
+	go func(){
+		stdReader := bufio.NewReader(os.Stdin)
+
+		for{
+			str, err := stdReader.ReadString('\n')
+
+			if err != nil {
+				continue
+			}
+
+			p.WriteAll(str)
+		}
+	}()
 
 	select {}
 }
