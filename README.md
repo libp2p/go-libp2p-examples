@@ -18,6 +18,7 @@ Let us know if you find any issue or if you want to contribute and add a new tut
 - [P2P chat application](./chat)
 - [P2P chat application w/ rendezvous peer discovery](./chat-with-rendezvous)
 - [P2P chat application with peer discovery using mdns](./chat-with-mdns)
+- [A chapter based approach to building a libp2p application](./ipfs-camp-2019/) _Created for [IPFS Camp 2019](https://github.com/ipfs/camp/tree/master/CORE_AND_ELECTIVE_COURSES/CORE_COURSE_B)_
 
 For js-libp2p examples, check https://github.com/libp2p/js-libp2p/tree/master/examples
 
@@ -25,7 +26,7 @@ For js-libp2p examples, check https://github.com/libp2p/js-libp2p/tree/master/ex
 
 When building the examples ensure you have a clean `$GOPATH`. If you have checked out and built other `libp2p` repos then you may get errors similar to the one below when building the examples. Note that the use of the `gx` package manager **is not required** to run the examples or to use `libp2p`.
 ```
-$:~/go/src/github.com/libp2p/go-libp2p-examples/libp2p-host$ go build host.go 
+$:~/go/src/github.com/libp2p/go-libp2p-examples/libp2p-host$ go build host.go
 # command-line-arguments
 ./host.go:36:18: cannot use priv (type "github.com/libp2p/go-libp2p-crypto".PrivKey) as type "gx/ipfs/QmNiJiXwWE3kRhZrC5ej3kSjWHm337pYfhjLGSCDNKJP2s/go-libp2p-crypto".PrivKey in argument to libp2p.Identity:
         "github.com/libp2p/go-libp2p-crypto".PrivKey does not implement "gx/ipfs/QmNiJiXwWE3kRhZrC5ej3kSjWHm337pYfhjLGSCDNKJP2s/go-libp2p-crypto".PrivKey (wrong type for Equals method)
