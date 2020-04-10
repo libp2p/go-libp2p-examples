@@ -73,7 +73,7 @@ func main() {
 		libp2p.NATPortMap(),
 		// Let this host use the DHT to find other hosts
 		libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
-			idht, err = dht.New(ctx, h)
+			idht, err = dht.New(ctx, h, dht.Mode(dht.ModeServer))
 			return idht, err
 		}),
 		// Let this host use relays and advertise itself on relays if
