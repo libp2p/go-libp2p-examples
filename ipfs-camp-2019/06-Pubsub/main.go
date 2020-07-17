@@ -24,12 +24,12 @@ import (
 	"github.com/multiformats/go-multiaddr"
 )
 
-type mdnsNotifee struct {
+type discoveryNotifee struct {
 	h   host.Host
 	ctx context.Context
 }
 
-func (m *mdnsNotifee) HandlePeerFound(pi peer.AddrInfo) {
+func (m *discoveryNotifee) HandlePeerFound(pi peer.AddrInfo) {
 	if m.h.Network().Connectedness(pi.ID) != network.Connected {
 		fmt.Printf("Found %s!\n", pi.ID.ShortString())
 		m.h.Connect(m.ctx, pi)
@@ -106,7 +106,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	notifee := &mdnsNotifee{h: host, ctx: ctx}
+	notifee := &discoveryNotifee{h: host, ctx: ctx}
 	mdns.RegisterNotifee(notifee)
 
 	err = dht.Bootstrap(ctx)
