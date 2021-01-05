@@ -76,28 +76,7 @@ func makeBasicHost(listenPort int, insecure bool, randseed int64) (host.Host, er
 	return basicHost, nil
 }
 
-func main() {
-	// LibP2P code uses golog to log messages. They log with different
-	// string IDs (i.e. "swarm"). We can control the verbosity level for
-	// all loggers with:
-	golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
-
-	// Parse options from the command line
-	listenF := flag.Int("l", 0, "wait for incoming connections")
-	target := flag.String("d", "", "target peer to dial")
-	insecure := flag.Bool("insecure", false, "use an unencrypted connection")
-	seed := flag.Int64("seed", 0, "set random seed for id generation")
-	flag.Parse()
-
-	if *listenF == 0 {
-		log.Fatal("Please provide a port to bind on with -l")
-	}
-
-	// Make a host that listens on the given multiaddress
-	ha, err := makeBasicHost(*listenF, *insecure, *seed)
-	if err != nil {
-		log.Fatal(err)
-	}
+func echo(target string, ha host.Host) {
 
 	// Set a stream handler on host A. /echo/1.0.0 is
 	// a user-defined protocol name.
@@ -111,7 +90,7 @@ func main() {
 		}
 	})
 
-	if *target == "" {
+	if target == "" {
 		log.Println("listening for connections")
 		select {} // hang forever
 	}
@@ -119,7 +98,7 @@ func main() {
 
 	// The following code extracts target's the peer ID from the
 	// given multiaddress
-	ipfsaddr, err := ma.NewMultiaddr(*target)
+	ipfsaddr, err := ma.NewMultiaddr(target)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -163,6 +142,33 @@ func main() {
 	}
 
 	log.Printf("read reply: %q\n", out)
+}
+
+func main() {
+	// LibP2P code uses golog to log messages. They log with different
+	// string IDs (i.e. "swarm"). We can control the verbosity level for
+	// all loggers with:
+	golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
+
+	// Parse options from the command line
+	listenF := flag.Int("l", 0, "wait for incoming connections")
+	target := flag.String("d", "", "target peer to dial")
+	insecure := flag.Bool("insecure", false, "use an unencrypted connection")
+	seed := flag.Int64("seed", 0, "set random seed for id generation")
+	flag.Parse()
+
+	if *listenF == 0 {
+		log.Fatal("Please provide a port to bind on with -l")
+	}
+
+	// Make a host that listens on the given multiaddress
+	ha, err := makeBasicHost(*listenF, *insecure, *seed)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	echo(*target, ha)
+
 }
 
 // doEcho reads a line of data a stream and writes it back

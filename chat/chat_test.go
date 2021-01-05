@@ -2,12 +2,14 @@ package main
 
 import(
     "testing"
+    "time"
 )
 
-func TestMain(t *testingT){
-    //todo: maybe this would be better to do via cli so I could pass arguments
-    // to each program, then pipe some data to them or something idk. 
-
+//"Chat" will poll for input forever, here just run the main logic to see if there are any runtime errors
+func TestMain(t *testing.M){
+    timer1 := time.NewTimer(2 * time.Second)
+    go main()
+    <-timer1.C
 }
 
 

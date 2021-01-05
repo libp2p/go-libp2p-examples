@@ -1,9 +1,9 @@
 package main
 
 import (
-    "testing"
+	"testing"
 )
 
-func TestMain(t *testing.T){
-    main()
+func TestMain(t *testing.M){
+	go main()
 }
