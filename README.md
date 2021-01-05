@@ -40,5 +40,5 @@ To obtain a clean `$GOPATH` execute the following:
 > export GOPATH=/tmp/libp2p/examples
 ```
 
-## Tests
+### Tests
 `go test ./...` will run all tests in the repo
