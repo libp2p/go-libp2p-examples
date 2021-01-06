@@ -4,6 +4,6 @@ import (
 	"testing"
 )
 
-func TestMain(t *testing.M){
+func TestMain(t *testing.M) {
 	go main()
 }
