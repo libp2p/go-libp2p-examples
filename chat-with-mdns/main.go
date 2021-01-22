@@ -32,7 +32,7 @@ func readData(rw *bufio.ReadWriter) {
 	for {
 		str, err := rw.ReadString('\n')
 		if err != nil {
-			fmt.Println("Error reading from buffer", err)
+			fmt.Println("Error reading from buffer")
 			panic(err)
 		}
 
