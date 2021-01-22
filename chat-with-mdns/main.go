@@ -115,7 +115,6 @@ func main() {
 	for _, a := range host.Addrs() {
 		fmt.Println(a)
 	}
-	fmt.Println("\n")
 
 	peerChan := initMDNS(ctx, host, cfg.RendezvousString)
 
