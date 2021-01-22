@@ -7,7 +7,6 @@ This program demonstrates a simple p2p chat application. You will learn how to d
 From the `go-libp2p-examples` directory run the following:
 
 ```
-> make deps
 > cd chat-with-rendezvous/
 > go build -o chat
 ```

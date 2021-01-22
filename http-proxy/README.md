@@ -25,7 +25,6 @@ Note that this is a very simple approach to a proxy, and does not perform any he
 From the `go-libp2p-examples` directory run the following:
 
 ```
-> make deps
 > cd http-proxy/
 > go build
 ```

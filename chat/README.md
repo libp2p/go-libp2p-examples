@@ -13,7 +13,6 @@ Usage: Run `./chat -sp <SOURCE_PORT>` on host 'B' where <SOURCE_PORT> can be any
 From the `go-libp2p-examples` directory run the following:
 
 ```
-> make deps
 > cd chat
 > go build
 ```

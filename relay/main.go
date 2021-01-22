@@ -17,8 +17,8 @@ func main() {
 	// Create three libp2p hosts, enable relay client capabilities on all
 	// of them.
 
-	// Tell the host to monitor for relays.
-	h1, err := libp2p.New(context.Background(), libp2p.EnableRelay(circuit.OptDiscovery))
+	// Tell the host to be a Relay client i.e. the ability to "use a relay".
+	h1, err := libp2p.New(context.Background(), libp2p.EnableRelay())
 	if err != nil {
 		panic(err)
 	}
@@ -31,7 +31,8 @@ func main() {
 	}
 
 	// Zero out the listen addresses for the host, so it can only communicate
-	// via p2p-circuit for our example
+	// via p2p-circuit for our example.
+	// In this example, h1 will connect to h3 via the Relay Server h2.
 	h3, err := libp2p.New(context.Background(), libp2p.ListenAddrs(), libp2p.EnableRelay())
 	if err != nil {
 		panic(err)
@@ -64,10 +65,14 @@ func main() {
 	fmt.Println("Okay, no connection from h1 to h3: ", err)
 	fmt.Println("Just as we suspected")
 
-	// Creates a relay address
-	relayaddr, err := ma.NewMultiaddr("/p2p-circuit/ipfs/" + h3.ID().Pretty())
-	if err != nil {
-		panic(err)
+	// Creates a relay address for h3 that will dial relay server h2 and ask h2 for a connection to h3.
+	var relayAddrs []ma.Multiaddr
+	for _, a := range h2.Addrs() {
+		relayAddr, err := ma.NewMultiaddr(fmt.Sprintf("/p2p/%s/p2p-circuit", h2.ID().Pretty()))
+		if err != nil {
+			panic(err)
+		}
+		relayAddrs = append(relayAddrs, a.Encapsulate(relayAddr))
 	}
 
 	// Since we just tried and failed to dial, the dialer system will, by default
@@ -78,13 +83,13 @@ func main() {
 
 	h3relayInfo := peer.AddrInfo{
 		ID:    h3.ID(),
-		Addrs: []ma.Multiaddr{relayaddr},
+		Addrs: relayAddrs,
 	}
 	if err := h1.Connect(context.Background(), h3relayInfo); err != nil {
 		panic(err)
 	}
 
-	// Woohoo! we're connected!
+	// Woohoo! we're connected to h3 via a connection Relayed by h2.
 	s, err := h1.NewStream(context.Background(), h3.ID(), "/cats")
 	if err != nil {
 		fmt.Println("huh, this should have worked: ", err)

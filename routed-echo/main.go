@@ -24,12 +24,10 @@ import (
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	rhost "github.com/libp2p/go-libp2p/p2p/host/routed"
 	ma "github.com/multiformats/go-multiaddr"
-	gologging "github.com/whyrusleeping/go-logging"
 )
 
 // makeRoutedHost creates a LibP2P host with a random peer ID listening on the
-// given multiaddress. It will use secio if secio is true. It will bootstrap using the
-// provided PeerInfo
+// given multiaddress. It will bootstrap using the provided bootstrapPeers
 func makeRoutedHost(listenPort int, randseed int64, bootstrapPeers []peer.AddrInfo, globalFlag string) (host.Host, error) {
 
 	// If the seed is zero, use real cryptographic randomness. Otherwise, use a
@@ -44,7 +42,7 @@ func makeRoutedHost(listenPort int, randseed int64, bootstrapPeers []peer.AddrIn
 
 	// Generate a key pair for this host. We will use it at least
 	// to obtain a valid host ID.
-	priv, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
+	priv, _, err := crypto.GenerateKeyPairWithReader(crypto.Ed25519, -1, r)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +96,7 @@ func makeRoutedHost(listenPort int, randseed int64, bootstrapPeers []peer.AddrIn
 		log.Println(addr.Encapsulate(hostAddr))
 	}
 
-	log.Printf("Now run \"./routed-echo -l %d -d %s%s\" on a different terminal\n", listenPort+1, routedHost.ID().Pretty(), globalFlag)
+	fmt.Printf("Now run \"./routed-echo -l %d -d %s%s\" on a different terminal\n", listenPort+1, routedHost.ID().Pretty(), globalFlag)
 
 	return routedHost, nil
 }
@@ -107,7 +105,7 @@ func main() {
 	// LibP2P code uses golog to log messages. They log with different
 	// string IDs (i.e. "swarm"). We can control the verbosity level for
 	// all loggers with:
-	golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
+	golog.SetAllLoggers(golog.LevelError) // Change to INFO or DEBUG for extra info.
 
 	// Parse options from the command line
 	listenF := flag.Int("l", 0, "wait for incoming connections")
@@ -155,7 +153,7 @@ func main() {
 	}
 	/**** This is where the listener code ends ****/
 
-	peerid, err := peer.IDB58Decode(*target)
+	peerid, err := peer.Decode(*target)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -170,7 +168,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
 	_, err = s.Write([]byte("Hello, world!\n"))
 	if err != nil {
 		log.Fatalln(err)

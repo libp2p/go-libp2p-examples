@@ -11,7 +11,6 @@ We'll also enable NAT port mapping to illustrate the setup, although it isn't gu
 From `go-libp2p-examples` base folder:
 
 ```
-> make deps
 > go build ./routed-echo
 ```
 

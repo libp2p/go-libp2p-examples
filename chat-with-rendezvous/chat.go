@@ -16,7 +16,6 @@ import (
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	multiaddr "github.com/multiformats/go-multiaddr"
-	logging "github.com/whyrusleeping/go-logging"
 
 	"github.com/ipfs/go-log"
 )
@@ -80,7 +79,7 @@ func writeData(rw *bufio.ReadWriter) {
 }
 
 func main() {
-	log.SetAllLoggers(logging.WARNING)
+	log.SetAllLoggers(log.LevelError) // INFO or DEBUG for more information.
 	log.SetLogLevel("rendezvous", "info")
 	help := flag.Bool("h", false, "Display Help")
 	config, err := ParseFlags()
