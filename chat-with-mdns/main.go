@@ -32,7 +32,7 @@ func readData(rw *bufio.ReadWriter) {
 	for {
 		str, err := rw.ReadString('\n')
 		if err != nil {
-			fmt.Println("Error reading from buffer")
+			fmt.Println("Error reading from buffer", err)
 			panic(err)
 		}
 
@@ -83,8 +83,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	fmt.Printf("[*] Listening on: %s with port: %d\n", cfg.listenHost, cfg.listenPort)
-
 	ctx := context.Background()
 	r := rand.Reader
 
@@ -112,8 +110,12 @@ func main() {
 	// Set a function as stream handler.
 	// This function is called when a peer initiates a connection and starts a stream with this peer.
 	host.SetStreamHandler(protocol.ID(cfg.ProtocolID), handleStream)
-
-	fmt.Printf("\n[*] Your Multiaddress Is: /ip4/%s/tcp/%v/p2p/%s\n", cfg.listenHost, cfg.listenPort, host.ID().Pretty())
+	fmt.Println("\n Host ID is", host.ID().Pretty())
+	fmt.Printf("\n Listening on multiaddresses:\n")
+	for _, a := range host.Addrs() {
+		fmt.Println(a)
+	}
+	fmt.Println("\n")
 
 	peerChan := initMDNS(ctx, host, cfg.RendezvousString)
 
