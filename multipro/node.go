@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/libp2p/go-libp2p-core/crypto"
-	"github.com/libp2p/go-libp2p-core/helpers"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
@@ -145,15 +144,10 @@ func (n *Node) sendProtoMessage(id peer.ID, p protocol.ID, data proto.Message) b
 		log.Println(err)
 		return false
 	}
+	defer s.Close()
+
 	writer := ggio.NewFullWriter(s)
 	err = writer.WriteMsg(data)
-	if err != nil {
-		log.Println(err)
-		s.Reset()
-		return false
-	}
-	// FullClose closes the stream and waits for the other side to close their half.
-	err = helpers.FullClose(s)
 	if err != nil {
 		log.Println(err)
 		s.Reset()

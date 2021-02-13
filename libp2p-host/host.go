@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/libp2p/go-libp2p"
-	autonat "github.com/libp2p/go-libp2p-autonat-svc"
 	connmgr "github.com/libp2p/go-libp2p-connmgr"
 	"github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/host"
@@ -80,22 +79,17 @@ func main() {
 		// it finds it is behind NAT. Use libp2p.Relay(options...) to
 		// enable active relays and more.
 		libp2p.EnableAutoRelay(),
+		// If you want to help other peers to figure out if they are behind
+		// NATs, you can launch the server-side of AutoNAT too (AutoRelay
+		// already runs the client)
+		//
+		// This service is highly rate-limited and should not cause any
+		// performance issues.
+		libp2p.EnableNATService(),
 	)
 	if err != nil {
 		panic(err)
 	}
-
-	// If you want to help other peers to figure out if they are behind
-	// NATs, you can launch the server-side of AutoNAT too (AutoRelay
-	// already runs the client)
-	_, err = autonat.NewAutoNATService(ctx, h2,
-		// Support same non default security and transport options as
-		// original host.
-		libp2p.Security(libp2ptls.ID, libp2ptls.New),
-		libp2p.Security(secio.ID, secio.New),
-		libp2p.Transport(libp2pquic.NewTransport),
-		libp2p.DefaultTransports,
-	)
 
 	// The last step to get fully up and running would be to connect to
 	// bootstrap peers (or any other peers). We leave this commented as
