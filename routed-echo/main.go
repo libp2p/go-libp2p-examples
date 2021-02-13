@@ -19,12 +19,11 @@ import (
 
 	ds "github.com/ipfs/go-datastore"
 	dsync "github.com/ipfs/go-datastore/sync"
-	golog "github.com/ipfs/go-log"
+	golog "github.com/ipfs/go-log/v2"
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	rhost "github.com/libp2p/go-libp2p/p2p/host/routed"
 	ma "github.com/multiformats/go-multiaddr"
-	gologging "github.com/whyrusleeping/go-logging"
 )
 
 // makeRoutedHost creates a LibP2P host with a random peer ID listening on the
@@ -107,7 +106,7 @@ func main() {
 	// LibP2P code uses golog to log messages. They log with different
 	// string IDs (i.e. "swarm"). We can control the verbosity level for
 	// all loggers with:
-	golog.SetAllLoggers(gologging.INFO) // Change to DEBUG for extra info
+	golog.SetAllLoggers(golog.LevelInfo) // Change to INFO for extra info
 
 	// Parse options from the command line
 	listenF := flag.Int("l", 0, "wait for incoming connections")
