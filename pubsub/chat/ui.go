@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"strings"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
@@ -76,6 +75,7 @@ func NewChatUI(cr *ChatRoom) *ChatUI {
 	peersList := tview.NewTextView()
 	peersList.SetBorder(true)
 	peersList.SetTitle("Peers")
+	peersList.SetChangedFunc(func() { app.Draw() })
 
 	// chatPanel is a horizontal box with messages on the left and peers on the right
 	// the peers list takes 20 columns, and the messages take the remaining space
@@ -120,12 +120,16 @@ func (ui *ChatUI) end() {
 // displays the last 8 chars of their peer id in the Peers panel in the ui.
 func (ui *ChatUI) refreshPeers() {
 	peers := ui.cr.ListPeers()
-	idStrs := make([]string, len(peers))
-	for i, p := range peers {
-		idStrs[i] = shortID(p)
+
+	// clear is not threadsafe so we need to take the lock.
+	ui.peersList.Lock()
+	ui.peersList.Clear()
+	ui.peersList.Unlock()
+
+	for _, p := range peers {
+		fmt.Fprintln(ui.peersList, shortID(p))
 	}
 
-	ui.peersList.SetText(strings.Join(idStrs, "\n"))
 	ui.app.Draw()
 }
 
