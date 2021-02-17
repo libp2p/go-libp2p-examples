@@ -60,9 +60,13 @@ func NewProxyService(h host.Host, proxyAddr ma.Multiaddr, dest peer.ID) *ProxySe
 	// We let our host know that it needs to handle streams tagged with the
 	// protocol id that we have defined, and then handle them to
 	// our own streamHandling function.
-	h.SetStreamHandler(Protocol, streamHandler)
+	ps := "Proxy"
+	if len(dest) == 0 {
+		h.SetStreamHandler(Protocol, streamHandler)
+		ps = "Remote Peer"
+	}
 
-	fmt.Println("Proxy server is ready")
+	fmt.Printf("%s server is ready", ps)
 	fmt.Println("libp2p-peer addresses:")
 	for _, a := range h.Addrs() {
 		fmt.Printf("%s/ipfs/%s\n", a, peer.IDB58Encode(h.ID()))
