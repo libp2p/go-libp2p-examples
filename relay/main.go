@@ -18,7 +18,7 @@ func main() {
 	// of them.
 
 	// Tell the host to monitor for relays.
-	h1, err := libp2p.New(context.Background(), libp2p.EnableRelay(circuit.OptDiscovery))
+	h1, err := libp2p.New(context.Background(), libp2p.EnableRelay(circuit.OptHop))
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +65,7 @@ func main() {
 	fmt.Println("Just as we suspected")
 
 	// Creates a relay address
-	relayaddr, err := ma.NewMultiaddr("/p2p-circuit/ipfs/" + h3.ID().Pretty())
+	relayaddr, err := ma.NewMultiaddr("/p2p/" + h2.ID().Pretty() + "/p2p-circuit/p2p/" + h3.ID().Pretty())
 	if err != nil {
 		panic(err)
 	}
