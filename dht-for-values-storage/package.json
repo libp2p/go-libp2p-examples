@@ -1,0 +1,24 @@
+{
+  "author": "root",
+  "bugs": {
+    "url": "idk"
+  },
+  "gx": {
+    "dvcsimport": "Third_thing/1/08-End"
+  },
+  "gxDependencies": [
+    {
+      "author": "whyrusleeping",
+      "hash": "QmNohiVssaPw3KVLZik59DBVGTSm2dGvYT9eoXt5DQ36Yz",
+      "name": "go-ipfs-util",
+      "version": "1.2.9"
+    }
+  ],
+  "gxVersion": "0.14.2",
+  "language": "go",
+  "license": "",
+  "name": "08-End",
+  "releaseCmd": "git commit -a -m \"gx publish $VERSION\"",
+  "version": "0.0.0"
+}
+
